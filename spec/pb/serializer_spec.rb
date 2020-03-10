@@ -91,7 +91,13 @@ RSpec.describe Pb::Serializer do
     expect(Pb::Serializer::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  describe '#to_pb' do
+    it 'serializes ruby object into protobuf message' do
+      work = self.class::Work.new(company: 'Example Company, inc.')
+      serializer = self.class::WorkSerializer.new(work)
+      pb = serializer.to_pb
+      expect(pb).to be_kind_of TestFixture::Work
+      expect(pb.company).to eq work.company
+    end
   end
 end
