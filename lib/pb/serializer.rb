@@ -28,9 +28,31 @@ module Pb
       h =
         self.class.message_class.descriptor.each_with_object({}) do |d, o|
           n = d.name.to_sym
-          if object.respond_to?(n)
-            o[n] = object.public_send(n)
+
+          next if d.label == :repeated # TODO
+
+          if self.class.delegated_attrs.key?(n)
+            object = object.public_send(self.class.delegated_attrs[n])
           end
+          v =
+            if respond_to?(n)
+              public_send(n)
+            elsif object.respond_to?(n)
+              object.public_send(n)
+            end
+          o[n] =
+            case d.type
+            when :message
+              case d.submsg_name
+              when 'google.protobuf.StringValue'
+                v.nil? ? nil : Google::Protobuf::StringValue.new(value: v)
+              else
+                # TODO: Support other well-known types
+                next
+              end
+            else
+              v
+            end
         end
       self.class.message_class.new(**h)
     end
@@ -47,7 +69,9 @@ module Pb
 
       def delegates(*attrs, to:)
         puts "delegates: #{attrs}, to: #{to}"
-        # TODO: not implemented
+        attrs.each do |attr|
+          delegated_attrs[attr] = to
+        end
       end
 
       def method_added(name)
@@ -61,6 +85,10 @@ module Pb
 
         puts "depends: #{name}, on: #{dep}"
         # TODO: not implemented
+      end
+
+      def delegated_attrs
+        @delegated_attrs ||= {}
       end
     end
   end
