@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package example;
+
+option ruby_package = "TestFixture";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+message User {
+  uint32 id = 1;
+  string name = 2;
+  google.protobuf.StringValue avatar_url = 3;
+  google.protobuf.Timestamp registered_at = 4;
+  Date birthday = 5; 
+  uint32 age = 6;
+
+  Preference preference = 11;
+  repeated Work works = 12;
+}
+
+message Preference {
+  string email = 1;
+}
+
+message Work {
+  string company = 1;
+}
+
+message Date {
+  uint32 year = 1;
+  uint32 month = 2;
+  uint32 day = 3;
+}
