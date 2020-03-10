@@ -37,7 +37,7 @@ module Pb
 
     module ClassMethods
       attr_reader :message_class
-      def object(klass)
+      def message(klass)
         @message_class = klass
       end
 

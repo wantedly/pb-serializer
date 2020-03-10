@@ -20,7 +20,7 @@ RSpec.describe Pb::Serializer do
   end
 
   class self::UserSerializer < Pb::Serializer::Base
-    object TestFixture::User
+    message TestFixture::User
 
     delegates :name, :works, to: :profile
 
@@ -46,11 +46,11 @@ RSpec.describe Pb::Serializer do
   end
 
   class self::WorkSerializer < Pb::Serializer::Base
-    object TestFixture::Work
+    message TestFixture::Work
   end
 
   class self::DateSerializer < Pb::Serializer::Base
-    object TestFixture::Date
+    message TestFixture::Date
   end
 
   before do
