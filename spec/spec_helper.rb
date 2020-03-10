@@ -1,5 +1,6 @@
 require "bundler/setup"
 require "pb/serializer"
+require_relative "./fixtures/message_pb"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
