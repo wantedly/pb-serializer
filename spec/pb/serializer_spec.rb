@@ -22,17 +22,12 @@ RSpec.describe Pb::Serializer do
   class self::UserSerializer < Pb::Serializer::Base
     message TestFixture::User
 
-    delegates :name, :works, to: :profile
+    delegates :name, :works, :birthday, to: :profile
 
-    # depends on: { profile: :birthday }
-    # def age
-    #   [Date.today, object.profile.birthday].map { |d| d.strftime('%Y%m%d').to_i }.then { |(t, b)| t - b } / 10000
-    # end
-    #
-    # depends on: { profile: :birthday }
-    # def birthday
-    #   object.profile&.birthday
-    # end
+    depends on: { profile: :birthday }
+    def age
+      [Date.today, object.profile.birthday].map { |d| d.strftime('%Y%m%d').to_i }.then { |(t, b)| t - b } / 10000
+    end
 
     depends on: { profile: :avatar_url }
     def avatar_url
@@ -47,6 +42,10 @@ RSpec.describe Pb::Serializer do
 
   class self::WorkSerializer < Pb::Serializer::Base
     message TestFixture::Work
+  end
+
+  class self::PreferenceSerializer < Pb::Serializer::Base
+    message TestFixture::Preference
   end
 
   class self::DateSerializer < Pb::Serializer::Base
@@ -94,7 +93,11 @@ RSpec.describe Pb::Serializer do
   describe '#to_pb' do
     it 'serializes ruby object into protobuf message' do
       user = self.class::User.create(registered_at: Time.now)
-      profile = user.create_profile!(name: 'Masayuki Izumi', avatar_url: 'https://example.com/izumin5210/avatar')
+      profile = user.create_profile!(
+        name: 'Masayuki Izumi',
+        avatar_url: 'https://example.com/izumin5210/avatar',
+        birthday: Date.new(1993, 2, 10),
+      )
       serializer = self.class::UserSerializer.new(user)
       pb = serializer.to_pb
       expect(pb).to be_kind_of TestFixture::User
@@ -103,6 +106,10 @@ RSpec.describe Pb::Serializer do
       expect(pb.registered_at.seconds).to eq user.registered_at.to_i
       expect(pb.avatar_url).to be_kind_of Google::Protobuf::StringValue
       expect(pb.avatar_url.value).to eq profile.avatar_url
+      expect(pb.birthday).to be_kind_of TestFixture::Date
+      expect(pb.birthday.year).to eq 1993
+      expect(pb.birthday.month).to eq 2
+      expect(pb.birthday.day).to eq 10
     end
   end
 end

@@ -21,8 +21,23 @@ module Pb
   end
 
   module Serializable
-    def self.included(base)
-      base.extend ClassMethods
+    class << self
+      def included(base)
+        base.extend ClassMethods
+      end
+
+      # @param [Google::Protobuf::Descriptor]
+      # @return [nil, Sserializable]
+      def find_serializable(d)
+        @serializables[d.name]
+      end
+
+      # @param [Serializable]
+      def register_serializable(s)
+        @serializables ||= {}
+        @serializables[s.message_class.descriptor.name] = s
+        # TODO: check dupliication
+      end
     end
 
     def serialize(object)
@@ -37,11 +52,14 @@ module Pb
           if self.class.delegated_attrs.key?(n)
             obj = obj.public_send(self.class.delegated_attrs[n])
           end
+
           v =
             if respond_to?(n)
               public_send(n)
             elsif obj.respond_to?(n)
               obj.public_send(n)
+            else
+              # raise "#{obj.class} does not implement ##{n}"
             end
           o[n] =
             case d.type
@@ -58,8 +76,14 @@ module Pb
               when 'google.protobuf.BoolValue';   Pb.to_boolval(v)
               when 'google.protobuf.BytesValue';  Pb.to_bytesval(v)
               else
-                # TODO: Support custom submsg type
-                next
+                serializable_class = Serializable.find_serializable(d.subtype)
+                raise "serializer was not found for #{d.submsg_name}" if serializable_class.nil?
+
+                if serializable_class < ::Pb::Serializer::Base
+                  serializable_class.new(v).to_pb
+                else
+                  serializable_class.new.serialize(v)
+                end
               end
             else
               v
@@ -72,6 +96,7 @@ module Pb
       attr_reader :message_class
       def message(klass)
         @message_class = klass
+        Serializable.register_serializable(self)
       end
 
       def depends(**args)
