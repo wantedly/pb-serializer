@@ -1,4 +1,5 @@
 require "pb/serializer/version"
+require "the_pb"
 
 module Pb
   module Serializer
@@ -46,24 +47,18 @@ module Pb
             case d.type
             when :message
               case d.submsg_name
-              when 'google.protobuf.StringValue'
-                case v
-                when nil;    nil
-                when String; Google::Protobuf::StringValue.new(value: v)
-                else raise # FIXME: invalid type
-                end
-              when 'google.protobuf.Timestamp'
-                t =
-                  case v
-                  when nil;            nil
-                  when Time;           v
-                  when Date, DateTIme; v.to_time
-                  when String;         Time.parse(v)
-                  else raise # FIXME: invalid type
-                  end
-                t.nil? ? nil : Google::Protobuf::Timestamp.new(seconds: t.to_i, nanos: t.nsec)
+              when 'google.protobuf.Timestamp';   Pb.to_timestamp(v)
+              when 'google.protobuf.StringValue'; Pb.to_strval(v)
+              when 'google.protobuf.Int32Value';  Pb.to_int32val(v)
+              when 'google.protobuf.Int64Value';  Pb.to_int64val(v)
+              when 'google.protobuf.UInt32Value'; Pb.to_uint32val(v)
+              when 'google.protobuf.UInt64Value'; Pb.to_uint64val(v)
+              when 'google.protobuf.FloatValue';  Pb.to_floatval(v)
+              when 'google.protobuf.DoubleValue'; Pb.to_doubleval(v)
+              when 'google.protobuf.BoolValue';   Pb.to_boolval(v)
+              when 'google.protobuf.BytesValue';  Pb.to_bytesval(v)
               else
-                # TODO: Support other well-known types
+                # TODO: Support custom submsg type
                 next
               end
             else
