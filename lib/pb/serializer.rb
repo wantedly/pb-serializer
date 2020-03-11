@@ -31,21 +31,37 @@ module Pb
 
           next if d.label == :repeated # TODO
 
+          obj = object
+
           if self.class.delegated_attrs.key?(n)
-            object = object.public_send(self.class.delegated_attrs[n])
+            obj = obj.public_send(self.class.delegated_attrs[n])
           end
           v =
             if respond_to?(n)
               public_send(n)
-            elsif object.respond_to?(n)
-              object.public_send(n)
+            elsif obj.respond_to?(n)
+              obj.public_send(n)
             end
           o[n] =
             case d.type
             when :message
               case d.submsg_name
               when 'google.protobuf.StringValue'
-                v.nil? ? nil : Google::Protobuf::StringValue.new(value: v)
+                case v
+                when nil;    nil
+                when String; Google::Protobuf::StringValue.new(value: v)
+                else raise # FIXME: invalid type
+                end
+              when 'google.protobuf.Timestamp'
+                t =
+                  case v
+                  when nil;            nil
+                  when Time;           v
+                  when Date, DateTIme; v.to_time
+                  when String;         Time.parse(v)
+                  else raise # FIXME: invalid type
+                  end
+                t.nil? ? nil : Google::Protobuf::Timestamp.new(seconds: t.to_i, nanos: t.nsec)
               else
                 # TODO: Support other well-known types
                 next

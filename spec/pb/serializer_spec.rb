@@ -99,6 +99,8 @@ RSpec.describe Pb::Serializer do
       pb = serializer.to_pb
       expect(pb).to be_kind_of TestFixture::User
       expect(pb.name).to eq profile.name
+      expect(pb.registered_at).to be_kind_of Google::Protobuf::Timestamp
+      expect(pb.registered_at.seconds).to eq user.registered_at.to_i
       expect(pb.avatar_url).to be_kind_of Google::Protobuf::StringValue
       expect(pb.avatar_url.value).to eq profile.avatar_url
     end
