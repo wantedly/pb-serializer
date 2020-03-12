@@ -35,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "onkcop", "~> 0.53"
   spec.add_development_dependency "activerecord", rails_versions
   spec.add_development_dependency "sqlite3", "~> 1.4"
+  spec.add_development_dependency "pry-byebug"
 end

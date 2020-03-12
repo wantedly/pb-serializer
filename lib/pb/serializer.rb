@@ -46,9 +46,17 @@ module Pb
               case d.submsg_name
               when 'google.protobuf.StringValue'
                 v.nil? ? nil : Google::Protobuf::StringValue.new(value: v)
-              else
+              when 'google.protobuf.Timestamp'
                 # TODO: Support other well-known types
                 next
+              else
+                if v.nil?
+                  nil
+                else
+                  klass = ::Google::Protobuf::DescriptorPool.generated_pool.lookup(d.submsg_name).msgclass
+                  value = klass.new.to_h.keys.map {|f| [f, v.public_send(f)] }.to_h
+                  klass.new(**value)
+                end
               end
             else
               v

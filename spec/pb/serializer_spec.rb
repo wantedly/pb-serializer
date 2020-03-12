@@ -28,11 +28,12 @@ RSpec.describe Pb::Serializer do
     # def age
     #   [Date.today, object.profile.birthday].map { |d| d.strftime('%Y%m%d').to_i }.then { |(t, b)| t - b } / 10000
     # end
-    #
-    # depends on: { profile: :birthday }
-    # def birthday
-    #   object.profile&.birthday
-    # end
+
+    depends on: { profile: :birthday }
+    def birthday
+      return unless object.profile&.birthday
+      RSpec::ExampleGroups::PbSerializer::DateSerializer.new(object.profile&.birthday)
+    end
 
     depends on: { profile: :avatar_url }
     def avatar_url
@@ -51,6 +52,10 @@ RSpec.describe Pb::Serializer do
 
   class self::DateSerializer < Pb::Serializer::Base
     message TestFixture::Date
+
+    def year; object.year; end
+    def month; object.month; end
+    def day; object.day; end
   end
 
   before do
@@ -94,13 +99,18 @@ RSpec.describe Pb::Serializer do
   describe '#to_pb' do
     it 'serializes ruby object into protobuf message' do
       user = self.class::User.create(registered_at: Time.now)
-      profile = user.create_profile!(name: 'Masayuki Izumi', avatar_url: 'https://example.com/izumin5210/avatar')
+      birthday = Date.current
+      profile = user.create_profile!(name: 'Masayuki Izumi', avatar_url: 'https://example.com/izumin5210/avatar', birthday: birthday)
       serializer = self.class::UserSerializer.new(user)
       pb = serializer.to_pb
       expect(pb).to be_kind_of TestFixture::User
       expect(pb.name).to eq profile.name
       expect(pb.avatar_url).to be_kind_of Google::Protobuf::StringValue
       expect(pb.avatar_url.value).to eq profile.avatar_url
+      expect(pb.birthday).to be_kind_of TestFixture::Date
+      expect(pb.birthday.year).to eq birthday.year
+      expect(pb.birthday.month).to eq birthday.month
+      expect(pb.birthday.day).to eq birthday.day
     end
   end
 end
