@@ -24,10 +24,10 @@ RSpec.describe Pb::Serializer do
 
     delegates :name, :works, to: :profile
 
-    # depends on: { profile: :birthday }
-    # def age
-    #   [Date.today, object.profile.birthday].map { |d| d.strftime('%Y%m%d').to_i }.then { |(t, b)| t - b } / 10000
-    # end
+    depends on: { profile: :birthday }
+    def age
+      [Date.today, object.profile.birthday].map { |d| d.strftime('%Y%m%d').to_i }.then { |(t, b)| t - b } / 10000
+    end
 
     depends on: { profile: :birthday }
     def birthday
@@ -99,7 +99,7 @@ RSpec.describe Pb::Serializer do
   describe '#to_pb' do
     it 'serializes ruby object into protobuf message' do
       user = self.class::User.create(registered_at: Time.now)
-      birthday = Date.current
+      birthday = 3.years.ago
       profile = user.create_profile!(name: 'Masayuki Izumi', avatar_url: 'https://example.com/izumin5210/avatar', birthday: birthday)
       serializer = self.class::UserSerializer.new(user)
       pb = serializer.to_pb
@@ -111,6 +111,7 @@ RSpec.describe Pb::Serializer do
       expect(pb.birthday.year).to eq birthday.year
       expect(pb.birthday.month).to eq birthday.month
       expect(pb.birthday.day).to eq birthday.day
+      expect(pb.age).to eq 3
     end
   end
 end
