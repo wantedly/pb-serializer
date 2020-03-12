@@ -49,15 +49,13 @@ RSpec.describe Pb::Serializer do
   class self::WorkSerializer < Pb::Serializer::Base
     message TestFixture::Work
 
-    def company; object.company; end
+    attribute :company
   end
 
   class self::DateSerializer < Pb::Serializer::Base
     message TestFixture::Date
 
-    def year; object.year; end
-    def month; object.month; end
-    def day; object.day; end
+    attributes :year, :month, :day
   end
 
   before do

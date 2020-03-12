@@ -105,6 +105,18 @@ module Pb
       def delegated_attrs
         @delegated_attrs ||= {}
       end
+
+      def attribute(name)
+        class_eval <<~RUBY
+          def #{name}
+            object.#{name}
+          end
+        RUBY
+      end
+
+      def attributes(*names)
+        names.map {|name| attribute(name) }
+      end
     end
   end
 end
