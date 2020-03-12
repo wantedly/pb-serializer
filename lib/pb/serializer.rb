@@ -29,9 +29,7 @@ module Pb
         self.class.message_class.descriptor.each_with_object({}) do |d, o|
           n = d.name.to_sym
 
-          next if d.label == :repeated # TODO
-
-          if self.class.delegated_attrs.key?(n)
+          if self.class.delegated_attrs.key?(n) && object.respond_to?(self.class.delegated_attrs[n])
             object = object.public_send(self.class.delegated_attrs[n])
           end
           v =
@@ -40,29 +38,38 @@ module Pb
             elsif object.respond_to?(n)
               object.public_send(n)
             end
-          o[n] =
-            case d.type
-            when :message
-              case d.submsg_name
-              when 'google.protobuf.StringValue'
-                v.nil? ? nil : Google::Protobuf::StringValue.new(value: v)
-              when 'google.protobuf.Timestamp'
-                # TODO: Support other well-known types
-                next
-              else
-                if v.nil?
-                  nil
-                else
-                  klass = ::Google::Protobuf::DescriptorPool.generated_pool.lookup(d.submsg_name).msgclass
-                  value = klass.new.to_h.keys.map {|f| [f, v.public_send(f)] }.to_h
-                  klass.new(**value)
-                end
-              end
-            else
-              v
-            end
+
+          o[n] = if d.label == :repeated
+                   v.map { |vv| convert_pb_message(d, vv) }
+                 else
+                   convert_pb_message(d, v)
+                 end
         end
+
       self.class.message_class.new(**h)
+    end
+
+    def convert_pb_message(d, v)
+      case d.type
+      when :message
+        case d.submsg_name
+        when 'google.protobuf.StringValue'
+          v.nil? ? nil : Google::Protobuf::StringValue.new(value: v)
+        when 'google.protobuf.Timestamp'
+          # TODO: Support other well-known types
+          return
+        else
+          if v.nil?
+            nil
+          else
+            klass = ::Google::Protobuf::DescriptorPool.generated_pool.lookup(d.submsg_name).msgclass
+            value = klass.new.to_h.keys.map {|f| [f, v.public_send(f)] }.to_h
+            klass.new(**value)
+          end
+        end
+      else
+        v
+      end
     end
 
     module ClassMethods

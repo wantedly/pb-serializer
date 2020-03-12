@@ -48,6 +48,8 @@ RSpec.describe Pb::Serializer do
 
   class self::WorkSerializer < Pb::Serializer::Base
     message TestFixture::Work
+
+    def company; object.company; end
   end
 
   class self::DateSerializer < Pb::Serializer::Base
@@ -79,6 +81,7 @@ RSpec.describe Pb::Serializer do
       t.date :birthday
     end
     m.create_table :works do |t|
+      t.belongs_to :profile
       t.string :company
     end
   end
@@ -101,6 +104,7 @@ RSpec.describe Pb::Serializer do
       user = self.class::User.create(registered_at: Time.now)
       birthday = 3.years.ago
       profile = user.create_profile!(name: 'Masayuki Izumi', avatar_url: 'https://example.com/izumin5210/avatar', birthday: birthday)
+      works = user.profile.works << self.class::Work.new(company: 'wanted')
       serializer = self.class::UserSerializer.new(user)
       pb = serializer.to_pb
       expect(pb).to be_kind_of TestFixture::User
@@ -112,6 +116,9 @@ RSpec.describe Pb::Serializer do
       expect(pb.birthday.month).to eq birthday.month
       expect(pb.birthday.day).to eq birthday.day
       expect(pb.age).to eq 3
+      expect(pb.works).to be_kind_of Google::Protobuf::RepeatedField
+      expect(pb.works[0]).to be_kind_of TestFixture::Work
+      expect(pb.works[0].company).to eq works[0].company
     end
   end
 end
