@@ -26,7 +26,7 @@ RSpec.describe Pb::Serializer do
 
     depends on: { profile: :birthday }
     def age
-      [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.then {|(t, b)| t - b } / 10000
+      [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.yield_self {|(t, b)| t - b } / 10000
     end
 
     depends on: { profile: :avatar_url }
