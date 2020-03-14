@@ -36,6 +36,7 @@ RSpec.describe Pb::Serializer do
 
     depends on: { profile: :birthday }
     def age
+      return nil if object&.profile&.birthday.nil?
       [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.yield_self {|(t, b)| t - b } / 10000
     end
 
@@ -116,6 +117,9 @@ RSpec.describe Pb::Serializer do
         avatar_url: "https://example.com/izumin5210/avatar",
         birthday: Date.new(1993, 2, 10),
       )
+      user.create_preference!(
+        email: 'izumin5210@example.com'
+      )
       serializer = self.class::UserSerializer.new(user)
       pb = serializer.to_pb
       expect(pb).to be_kind_of TestFixture::User
@@ -128,6 +132,14 @@ RSpec.describe Pb::Serializer do
       expect(pb.birthday.year).to eq 1993
       expect(pb.birthday.month).to eq 2
       expect(pb.birthday.day).to eq 10
+    end
+
+    it "raises a validation error when required attriutes are blank" do
+      user = self.class::User.create(registered_at: Time.now)
+      user.create_profile!
+      serializer = self.class::UserSerializer.new(user)
+
+      expect { p serializer.to_pb }.to raise_error ::Pb::Serializer::ValidationError
     end
   end
 end
