@@ -47,17 +47,11 @@ module Pb
 
           next if d.label == :repeated # TODO
 
-          obj = object
-
-          if self.class.delegated_attrs.has_key?(n)
-            obj = obj.public_send(self.class.delegated_attrs[n])
-          end
-
           v =
             if respond_to?(n)
               public_send(n)
-            elsif obj.respond_to?(n)
-              obj.public_send(n)
+            else
+              raise "#{self.class.name}.#{n} is not defined"
             end
           o[n] =
             case d.type
@@ -77,6 +71,8 @@ module Pb
                 serializable_class = Serializable.find_serializable(d.subtype)
                 raise "serializer was not found for #{d.submsg_name}" if serializable_class.nil?
 
+                next if v.nil?
+
                 if serializable_class < ::Pb::Serializer::Base
                   serializable_class.new(v).to_pb
                 else
@@ -95,6 +91,22 @@ module Pb
       def message(klass)
         @message_class = klass
         Serializable.register_serializable(self)
+      end
+
+      # @param [Symbol] attr An attribute name
+      # @param [Boolean] required Set true if this attribute should not zero-value
+      def attribute(attr, required: false)
+        # TODO: Handle `required` param
+
+        define_method attr do
+          obj, key = object, attr
+
+          if self.class.delegated_attrs.has_key?(key)
+            obj = obj.public_send(self.class.delegated_attrs[key])
+          end
+
+          obj.public_send(key)
+        end
       end
 
       def depends(**args)

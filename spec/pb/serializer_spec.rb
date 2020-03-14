@@ -22,6 +22,16 @@ RSpec.describe Pb::Serializer do
   class self::UserSerializer < Pb::Serializer::Base
     message TestFixture::User
 
+    attribute :id,            required: true
+    attribute :registered_at, required: true
+    attribute :name,          required: true
+    attribute :avatar_url
+    attribute :birthday
+    attribute :age
+
+    attribute :works,      required: true
+    attribute :preference, required: true
+
     delegates :name, :works, :birthday, to: :profile
 
     depends on: { profile: :birthday }
@@ -42,14 +52,22 @@ RSpec.describe Pb::Serializer do
 
   class self::WorkSerializer < Pb::Serializer::Base
     message TestFixture::Work
+
+    attribute :company, required: true
   end
 
   class self::PreferenceSerializer < Pb::Serializer::Base
     message TestFixture::Preference
+
+    attribute :email, required: true
   end
 
   class self::DateSerializer < Pb::Serializer::Base
     message TestFixture::Date
+
+    attribute :year,  required: true
+    attribute :month, required: true
+    attribute :day,   required: true
   end
 
   before do
