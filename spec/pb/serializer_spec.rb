@@ -22,10 +22,21 @@ RSpec.describe Pb::Serializer do
   class self::UserSerializer < Pb::Serializer::Base
     message TestFixture::User
 
+    attribute :id,            required: true
+    attribute :registered_at, required: true
+    attribute :name,          required: true
+    attribute :avatar_url
+    attribute :birthday
+    attribute :age
+
+    attribute :works,      required: true
+    attribute :preference, required: true
+
     delegates :name, :works, :birthday, to: :profile
 
     depends on: { profile: :birthday }
     def age
+      return nil if object&.profile&.birthday.nil?
       [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.yield_self {|(t, b)| t - b } / 10000
     end
 
@@ -42,14 +53,22 @@ RSpec.describe Pb::Serializer do
 
   class self::WorkSerializer < Pb::Serializer::Base
     message TestFixture::Work
+
+    attribute :company, required: true
   end
 
   class self::PreferenceSerializer < Pb::Serializer::Base
     message TestFixture::Preference
+
+    attribute :email, required: true
   end
 
   class self::DateSerializer < Pb::Serializer::Base
     message TestFixture::Date
+
+    attribute :year,  required: true
+    attribute :month, required: true
+    attribute :day,   required: true
   end
 
   before do
@@ -98,6 +117,9 @@ RSpec.describe Pb::Serializer do
         avatar_url: "https://example.com/izumin5210/avatar",
         birthday: Date.new(1993, 2, 10),
       )
+      user.create_preference!(
+        email: 'izumin5210@example.com'
+      )
       serializer = self.class::UserSerializer.new(user)
       pb = serializer.to_pb
       expect(pb).to be_kind_of TestFixture::User
@@ -110,6 +132,14 @@ RSpec.describe Pb::Serializer do
       expect(pb.birthday.year).to eq 1993
       expect(pb.birthday.month).to eq 2
       expect(pb.birthday.day).to eq 10
+    end
+
+    it "raises a validation error when required attriutes are blank" do
+      user = self.class::User.create(registered_at: Time.now)
+      user.create_profile!
+      serializer = self.class::UserSerializer.new(user)
+
+      expect { p serializer.to_pb }.to raise_error ::Pb::Serializer::ValidationError
     end
   end
 end
