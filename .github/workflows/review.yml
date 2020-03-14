@@ -1,0 +1,31 @@
+name: review
+
+on: [pull_request]
+
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.6
+
+    - run: sudo apt-get install libsqlite3-dev
+
+    - name: Setup reviewdog
+      run: |
+        mkdir -p $HOME/bin
+        curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b $HOME/bin
+        echo ::add-path::$HOME/bin
+
+    - run: gem install bundler -v 2.1.4
+
+    - uses: actions/checkout@v2
+
+    - run: bundle install --jobs 4 --retry 3
+
+    - name: Run Rubocop with Reviewdog
+      run: |
+        bundle exec rubocop --fail-level E \
+          | reviewdog -f=rubocop -reporter=github-pr-review
