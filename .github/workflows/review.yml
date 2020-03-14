@@ -11,7 +11,9 @@ jobs:
       with:
         ruby-version: 2.6
 
-    - run: sudo apt-get install libsqlite3-dev
+    - run: |
+        sudo apt-get update
+        sudo apt-get install libsqlite3-dev
 
     - name: Setup reviewdog
       run: |
