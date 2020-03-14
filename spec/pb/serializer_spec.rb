@@ -1,11 +1,11 @@
-require 'active_record'
+require "active_record"
 
 RSpec.describe Pb::Serializer do
   class self::User < ActiveRecord::Base
-   has_one :profile
-   has_one :preference
+    has_one :profile
+    has_one :preference
   end
- 
+
   class self::Profile < ActiveRecord::Base
     belongs_to :user
     has_many :works
@@ -26,12 +26,12 @@ RSpec.describe Pb::Serializer do
 
     depends on: { profile: :birthday }
     def age
-      [Date.today, object.profile.birthday].map { |d| d.strftime('%Y%m%d').to_i }.then { |(t, b)| t - b } / 10000
+      [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.then {|(t, b)| t - b } / 10000
     end
 
     depends on: { profile: :avatar_url }
     def avatar_url
-      object.profile.avatar_url || 'http://example.com/default_avatar.png'
+      object.profile.avatar_url || "http://example.com/default_avatar.png"
     end
 
     depends on: { profile: :avatar_url }
@@ -54,7 +54,7 @@ RSpec.describe Pb::Serializer do
 
   before do
     ActiveRecord::Base.establish_connection(
-      adapter:  "sqlite3",
+      adapter: "sqlite3",
       database: ":memory:",
     )
     m = ActiveRecord::Migration.new
@@ -90,12 +90,12 @@ RSpec.describe Pb::Serializer do
     expect(Pb::Serializer::VERSION).not_to be nil
   end
 
-  describe '#to_pb' do
-    it 'serializes ruby object into protobuf message' do
+  describe "#to_pb" do
+    it "serializes ruby object into protobuf message" do
       user = self.class::User.create(registered_at: Time.now)
       profile = user.create_profile!(
-        name: 'Masayuki Izumi',
-        avatar_url: 'https://example.com/izumin5210/avatar',
+        name: "Masayuki Izumi",
+        avatar_url: "https://example.com/izumin5210/avatar",
         birthday: Date.new(1993, 2, 10),
       )
       serializer = self.class::UserSerializer.new(user)
