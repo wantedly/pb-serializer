@@ -49,7 +49,7 @@ module Pb
 
           obj = object
 
-          if self.class.delegated_attrs.key?(n)
+          if self.class.delegated_attrs.has_key?(n)
             obj = obj.public_send(self.class.delegated_attrs[n])
           end
 
@@ -58,23 +58,21 @@ module Pb
               public_send(n)
             elsif obj.respond_to?(n)
               obj.public_send(n)
-            else
-              # raise "#{obj.class} does not implement ##{n}"
             end
           o[n] =
             case d.type
             when :message
               case d.submsg_name
-              when 'google.protobuf.Timestamp';   Pb.to_timestamp(v)
-              when 'google.protobuf.StringValue'; Pb.to_strval(v)
-              when 'google.protobuf.Int32Value';  Pb.to_int32val(v)
-              when 'google.protobuf.Int64Value';  Pb.to_int64val(v)
-              when 'google.protobuf.UInt32Value'; Pb.to_uint32val(v)
-              when 'google.protobuf.UInt64Value'; Pb.to_uint64val(v)
-              when 'google.protobuf.FloatValue';  Pb.to_floatval(v)
-              when 'google.protobuf.DoubleValue'; Pb.to_doubleval(v)
-              when 'google.protobuf.BoolValue';   Pb.to_boolval(v)
-              when 'google.protobuf.BytesValue';  Pb.to_bytesval(v)
+              when "google.protobuf.Timestamp" then   Pb.to_timestamp(v)
+              when "google.protobuf.StringValue" then Pb.to_strval(v)
+              when "google.protobuf.Int32Value" then  Pb.to_int32val(v)
+              when "google.protobuf.Int64Value" then  Pb.to_int64val(v)
+              when "google.protobuf.UInt32Value" then Pb.to_uint32val(v)
+              when "google.protobuf.UInt64Value" then Pb.to_uint64val(v)
+              when "google.protobuf.FloatValue" then  Pb.to_floatval(v)
+              when "google.protobuf.DoubleValue" then Pb.to_doubleval(v)
+              when "google.protobuf.BoolValue" then   Pb.to_boolval(v)
+              when "google.protobuf.BytesValue" then  Pb.to_bytesval(v)
               else
                 serializable_class = Serializable.find_serializable(d.subtype)
                 raise "serializer was not found for #{d.submsg_name}" if serializable_class.nil?
