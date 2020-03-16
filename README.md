@@ -1,8 +1,55 @@
 # Pb::Serializer
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pb/serializer`. To experiment with that code, run `bin/console` for an interactive prompt.
+```rb
+class UserSerializer < Pb::Serializer::Base
+  message YourApp::User
 
-TODO: Delete this and the text above, and describe your gem
+  attribute :id,    required: true
+  attribute :name,  required: true
+  attribute :posts, required: true, serializer: PostSerializer
+
+  define_loader :posts do |users, subdeps, **|
+    posts = Post.where(user_id: users.map(&:id)).index_by(&:user_id)
+    users.each do |user|
+      user.posts = posts[user.id]
+    end
+  end
+
+  dependency :posts
+  computed def post_count
+    object.posts.size
+  end
+end
+
+class PostSerializer < Pb::Serializer::Base
+  message YourApp::Post
+
+  attribute :id,    required: true
+  attribute :title, required: true
+  attribute :body,  required: true
+end
+
+class UserGrpcService < YourApp::UserService::Service
+  # @param req [YourApp::GetUserRequest]
+  # @param call [GRPC::ActiveCall::SingleReqView]
+  # @return [YourApp::User]
+  def get_users(req, call)
+    user = User.find(id: req.user_id)
+    UserSerializer.serialize(user, with: req.field_mask)
+  end
+
+  # @param req [YourApp::ListFriendUsersRequest]
+  # @param call [GRPC::ActiveCall::SingleReqView]
+  # @return [YourApp::ListFriendUsersResponse]
+  def list_friend_users(req, call)
+    friends = User.find(current_user_id).friends
+    YourApp::ListFriendUsersResponse.new(
+      users: UserSerializer.serialize_repeated(friends, with: req.field_mask),
+    )
+  end
+end
+```
+
 
 ## Installation
 
