@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   rails_versions = [">= 5.2", "< 6.1"]
   spec.add_runtime_dependency "google-protobuf", "~> 3.0"
   spec.add_runtime_dependency "the_pb", "~> 0.0.1"
+  spec.add_runtime_dependency "computed_model", "~> 0.1.0"
 
   spec.add_development_dependency "activerecord", rails_versions
   spec.add_development_dependency "bundler", "~> 2.0"
