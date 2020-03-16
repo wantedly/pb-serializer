@@ -47,7 +47,7 @@ module Pb
           when "google.protobuf.BoolValue"   then Pb.to_boolval(v)
           when "google.protobuf.BytesValue"  then Pb.to_bytesval(v)
           else
-            serializable_class = Serializable.find_serializable(fd.subtype)
+            serializable_class = ::Pb::Serializable.find_serializable(fd.subtype)
             raise "serializer was not found for #{fd.submsg_name}" if serializable_class.nil?
 
             return nil if v.nil?

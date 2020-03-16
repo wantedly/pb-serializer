@@ -20,7 +20,7 @@ module Pb
     end
 
     def to_pb
-      Pb::Serializer.serialize(self)
+      ::Pb::Serializer.serialize(self)
     end
 
     class Attribute < Struct.new(:name, :required, keyword_init: true); end
