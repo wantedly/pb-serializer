@@ -14,6 +14,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :registered_at, :message, 4, "google.protobuf.Timestamp"
       optional :birthday, :message, 5, "example.Date"
       optional :age, :uint32, 6
+      repeated :skills, :string, 7
       optional :preference, :message, 11, "example.Preference"
       repeated :works, :message, 12, "example.Work"
     end
@@ -22,6 +23,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "example.Work" do
       optional :company, :string, 1
+      optional :position, :string, 2
     end
     add_message "example.Date" do
       optional :year, :uint32, 1

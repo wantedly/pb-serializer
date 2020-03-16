@@ -13,8 +13,15 @@ module Pb
         required
       end
 
+      # @return [Boolean]
+      def repeated?
+        field_descriptor.label == :repeated
+      end
+
       # @param v [Object]
-      def convert_to_pb(v)
+      def convert_to_pb(v, should_repeat: repeated?)
+        return v.map { |i| convert_to_pb(i, should_repeat: false) } if should_repeat
+
         case field_descriptor.type
         when :message
           case field_descriptor.submsg_name

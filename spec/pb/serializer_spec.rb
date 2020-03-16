@@ -10,6 +10,8 @@ RSpec.describe Pb::Serializer do
     class Profile < ActiveRecord::Base
       belongs_to :user
       has_many :works
+
+      serialize :skills, Array
     end
 
     class Work < ActiveRecord::Base
@@ -32,6 +34,7 @@ RSpec.describe Pb::Serializer do
       message TestFixture::Work
 
       attribute :company, required: true
+      attribute :position, required: true
     end
 
     class PreferenceSerializer < Pb::Serializer::Base
@@ -49,6 +52,7 @@ RSpec.describe Pb::Serializer do
       attribute :avatar_url
       attribute :birthday,      serializer: DateSerializer
       attribute :age
+      attribute :skills
 
       attribute :works,      required: true, serializer: WorkSerializer
       attribute :preference, required: true, serializer: PreferenceSerializer
@@ -56,6 +60,7 @@ RSpec.describe Pb::Serializer do
       delegate_dependency :name,       to: :profile
       delegate_dependency :avatar_url, to: :profile
       delegate_dependency :birthday,   to: :profile
+      delegate_dependency :skills,     to: :profile
       delegate_dependency :works,      to: :profile, include_subdeps: true
 
       define_loader :profile do |users, subdeps, **|
@@ -111,10 +116,12 @@ RSpec.describe Pb::Serializer do
       t.string :name
       t.string :avatar_url
       t.date :birthday
+      t.string :skills#, array: true # NOTE: sqlite3 does not support array columns
     end
     m.create_table :works do |t|
       t.belongs_to :profile
       t.string :company
+      t.string :position
     end
   end
 
@@ -138,10 +145,14 @@ RSpec.describe Pb::Serializer do
         name: "Masayuki Izumi",
         avatar_url: "https://example.com/izumin5210/avatar",
         birthday: Date.new(1993, 2, 10),
+        skills: ['Ruby', 'Go', 'TypeScript', 'React.js'],
       )
       user.create_preference!(
         email: 'izumin5210@example.com'
       )
+      profile.works.create!(company: "Foo, inc.", position: 'Software Engineer')
+      profile.works.create!(company: "Bar LLC", position: 'Software Engineer')
+      profile.works.create!(company: "Bar LLC", position: 'Senior Software Engineer')
       pb = sandbox::UserSerializer.serialize(user)
       expect(pb).to be_kind_of TestFixture::User
       expect(pb.name).to eq profile.name
@@ -153,6 +164,14 @@ RSpec.describe Pb::Serializer do
       expect(pb.birthday.year).to eq 1993
       expect(pb.birthday.month).to eq 2
       expect(pb.birthday.day).to eq 10
+      expect(pb.skills).to match ['Ruby', 'Go', 'TypeScript', 'React.js']
+      expect(pb.works.size).to eq 3
+      expect(pb.works[0].company).to eq 'Foo, inc.'
+      expect(pb.works[0].position).to eq 'Software Engineer'
+      expect(pb.works[1].company).to eq 'Bar LLC'
+      expect(pb.works[1].position).to eq 'Software Engineer'
+      expect(pb.works[2].company).to eq 'Bar LLC'
+      expect(pb.works[2].position).to eq 'Senior Software Engineer'
     end
 
     it "raises a validation error when required attriutes are blank" do
