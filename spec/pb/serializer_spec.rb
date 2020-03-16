@@ -19,36 +19,12 @@ RSpec.describe Pb::Serializer do
     belongs_to :user
   end
 
-  class self::UserSerializer < Pb::Serializer::Base
-    message TestFixture::User
+  class self::DateSerializer < Pb::Serializer::Base
+    message TestFixture::Date
 
-    attribute :id,            required: true
-    attribute :registered_at, required: true
-    attribute :name,          required: true
-    attribute :avatar_url
-    attribute :birthday
-    attribute :age
-
-    attribute :works,      required: true
-    attribute :preference, required: true
-
-    delegates :name, :works, :birthday, to: :profile
-
-    depends on: { profile: :birthday }
-    def age
-      return nil if object&.profile&.birthday.nil?
-      [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.yield_self {|(t, b)| t - b } / 10000
-    end
-
-    depends on: { profile: :avatar_url }
-    def avatar_url
-      object.profile.avatar_url || "http://example.com/default_avatar.png"
-    end
-
-    depends on: { profile: :avatar_url }
-    def original_avatar_url
-      object.profile.avatar_url
-    end
+    attribute :year,  required: true
+    attribute :month, required: true
+    attribute :day,   required: true
   end
 
   class self::WorkSerializer < Pb::Serializer::Base
@@ -63,12 +39,53 @@ RSpec.describe Pb::Serializer do
     attribute :email, required: true
   end
 
-  class self::DateSerializer < Pb::Serializer::Base
-    message TestFixture::Date
+  class self::UserSerializer < Pb::Serializer::Base
+    message TestFixture::User
 
-    attribute :year,  required: true
-    attribute :month, required: true
-    attribute :day,   required: true
+    attribute :id,            required: true
+    attribute :registered_at, required: true
+    attribute :name,          required: true
+    attribute :avatar_url
+    attribute :birthday,      serializer: self.module_parent::DateSerializer
+    attribute :age
+
+    attribute :works,      required: true, serializer: self.module_parent::WorkSerializer
+    attribute :preference, required: true, serializer: self.module_parent::PreferenceSerializer
+
+    delegate_dependency :name,       to: :profile
+    delegate_dependency :avatar_url, to: :profile
+    delegate_dependency :birthday,   to: :profile
+    delegate_dependency :works,      to: :profile, include_subdeps: true
+
+    define_loader :profile do |users, subdeps, **|
+      profiles = self.module_parent::Profile.where(user_id: users.map(&:id)).preload(subdeps).index_by(&:user_id)
+      users.each do |user|
+        user.profile = profiles[user.id]
+      end
+    end
+
+    define_loader :preference do |users, _subdeps, **|
+      preferences = self.module_parent::Preference.where(user_id: users.map(&:id)).index_by(&:user_id)
+      users.each do |user|
+        user.preference = preferences[user.id]
+      end
+    end
+
+    dependency :profile
+    computed def age
+      return nil if object&.profile&.birthday.nil?
+      [Date.today, object.profile.birthday].map {|d| d.strftime("%Y%m%d").to_i }.yield_self {|(t, b)| t - b } / 10000
+    end
+
+    dependency :profile
+    computed def avatar_url
+      object.profile.avatar_url || "http://example.com/default_avatar.png"
+    end
+
+    dependency :profile
+    computed def original_avatar_url
+      object.profile.avatar_url
+    end
   end
 
   before do
@@ -92,6 +109,7 @@ RSpec.describe Pb::Serializer do
       t.date :birthday
     end
     m.create_table :works do |t|
+      t.belongs_to :profile
       t.string :company
     end
   end
@@ -120,8 +138,7 @@ RSpec.describe Pb::Serializer do
       user.create_preference!(
         email: 'izumin5210@example.com'
       )
-      serializer = self.class::UserSerializer.new(user)
-      pb = serializer.to_pb
+      pb = self.class::UserSerializer.serialize(user)
       expect(pb).to be_kind_of TestFixture::User
       expect(pb.name).to eq profile.name
       expect(pb.registered_at).to be_kind_of Google::Protobuf::Timestamp
