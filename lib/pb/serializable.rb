@@ -17,7 +17,6 @@ module Pb
         attr = self.class.find_attribute_by_field_descriptor(fd)
 
         next unless attr # TODO
-        next if fd.label == :repeated # TODO
 
         raise "#{self.name}.#{attr.name} is not defined" unless respond_to?(attr.name)
 
@@ -28,7 +27,11 @@ module Pb
           raise ::Pb::Serializer::ValidationError, "#{object.class.name}##{attr.name} is required"
         end
 
-        o.public_send("#{attr.name}=", v)
+        if attr.repeated?
+          o.public_send(attr.name).push(*v)
+        else
+          o.public_send("#{attr.name}=", v)
+        end
       end
       o
     end
