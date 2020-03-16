@@ -2,6 +2,7 @@ require "pb/serializer/version"
 require "the_pb"
 
 require "pb/serializable"
+require "pb/serializer/base"
 
 module Pb
   module Serializer
@@ -60,18 +61,6 @@ module Pb
         else
           v.nil? ? fd.default : v
         end
-      end
-    end
-
-    class Base
-      def self.inherited(base)
-        base.include Serializable
-      end
-
-      attr_reader :object
-
-      def initialize(object)
-        @object = object
       end
     end
   end
