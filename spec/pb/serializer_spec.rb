@@ -254,6 +254,12 @@ RSpec.describe Pb::Serializer do
       expect { sandbox::UserSerializer.serialize(user) }.to raise_error ::Pb::Serializer::ValidationError
     end
 
+    it "raises a validation error when required oneof attributes are blank" do
+      account = Struct.new(:twitter, :github).new(nil, nil)
+
+      expect { sandbox::AccountSerializer.serialize(account) }.to raise_error ::Pb::Serializer::ValidationError
+    end
+
     it "raises a conflict error when oneof attributes set twice" do
       account = Struct.new(:twitter, :github).new(
         sandbox::TwitterAccount.new(login: 'izumin5210'),

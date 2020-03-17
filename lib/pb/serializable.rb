@@ -44,6 +44,13 @@ module Pb
           o.public_send("#{attr.name}=", v)
         end
       end
+
+      self.class.oneofs.each do |oneof|
+        next if oneof_set.include?(oneof.name)
+        next unless oneof.required?
+        raise ::Pb::Serializer::ValidationError, "#{object.class.name}##{oneof.name} is required"
+      end
+
       o
     end
 
@@ -105,6 +112,10 @@ module Pb
       # @return [Pb::Serializer::Attribute, nil]
       def find_attribute_by_field_descriptor(fd)
         @attr_by_name[fd.name.to_sym]
+      end
+
+      def oneofs
+        @oneof_by_name&.values || []
       end
     end
   end
