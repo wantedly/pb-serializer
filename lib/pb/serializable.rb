@@ -12,6 +12,8 @@ module Pb
 
       self.class.bulk_load_and_compute(Array(self), with)
 
+      oneof_set = []
+
       o = self.class.message_class.new
       self.class.message_class.descriptor.each do |fd|
         attr = self.class.find_attribute_by_field_descriptor(fd)
@@ -25,6 +27,15 @@ module Pb
 
         if attr.required && attr.field_descriptor.default == v
           raise ::Pb::Serializer::ValidationError, "#{object.class.name}##{attr.name} is required"
+        end
+
+        next if v.nil?
+
+        if attr.oneof?
+          if oneof_set.include?(attr.oneof)
+            raise ::Pb::Serializer::ConflictOneofError, "#{object.class.name}##{attr.name} is oneof attribute"
+          end
+          oneof_set << attr.oneof
         end
 
         if attr.repeated?

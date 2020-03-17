@@ -12,6 +12,7 @@ module Pb
     class Error < StandardError; end
     class UnknownFieldError < Error; end
     class ValidationError < Error; end
+    class ConflictOneofError < Error; end
 
     class << self
       # @param [Google::Protobuf::Descriptor]

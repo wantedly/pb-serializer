@@ -19,6 +19,10 @@ module Pb
         field_descriptor.label == :repeated
       end
 
+      def oneof?
+        !oneof.nil?
+      end
+
       # @param v [Object]
       def convert_to_pb(v, should_repeat: repeated?)
         return v.map { |i| convert_to_pb(i, should_repeat: false) } if should_repeat
