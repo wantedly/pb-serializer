@@ -5,6 +5,7 @@ module Pb
       :required,
       :serializer_class,
       :field_descriptor,
+      :oneof,
       keyword_init: true,
     )
 
@@ -16,6 +17,10 @@ module Pb
       # @return [Boolean]
       def repeated?
         field_descriptor.label == :repeated
+      end
+
+      def oneof?
+        !oneof.nil?
       end
 
       # @param v [Object]

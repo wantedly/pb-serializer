@@ -5,6 +5,8 @@ RSpec.describe Pb::Serializer do
     class User < ActiveRecord::Base
       has_one :profile
       has_one :preference
+      has_one :github_account
+      has_one :twitter_account
     end
 
     class Profile < ActiveRecord::Base
@@ -19,6 +21,14 @@ RSpec.describe Pb::Serializer do
     end
 
     class Preference < ActiveRecord::Base
+      belongs_to :user
+    end
+
+    class GithubAccount < ActiveRecord::Base
+      belongs_to :user
+    end
+
+    class TwitterAccount < ActiveRecord::Base
       belongs_to :user
     end
 
@@ -43,6 +53,27 @@ RSpec.describe Pb::Serializer do
       attribute :email, required: true
     end
 
+    class GithubAccountSerializer < Pb::Serializer::Base
+      message TestFixture::GithubAccount
+
+      attribute :login, required: true
+    end
+
+    class TwitterAccountSerializer < Pb::Serializer::Base
+      message TestFixture::TwitterAccount
+
+      attribute :login, required: true
+    end
+
+    class AccountSerializer < Pb::Serializer::Base
+      message TestFixture::Account
+
+      oneof :account, required: true do
+        attribute :github,  serializer: GithubAccountSerializer
+        attribute :twitter, serializer: TwitterAccountSerializer
+      end
+    end
+
     class UserSerializer < Pb::Serializer::Base
       message TestFixture::User
 
@@ -56,6 +87,7 @@ RSpec.describe Pb::Serializer do
 
       attribute :works,      required: true, serializer: WorkSerializer
       attribute :preference, required: true, serializer: PreferenceSerializer
+      attribute :accounts,   required: true, serializer: AccountSerializer
 
       delegate_dependency :name,       to: :profile
       delegate_dependency :avatar_url, to: :profile
@@ -77,6 +109,20 @@ RSpec.describe Pb::Serializer do
         end
       end
 
+      define_loader :github_account do |users, _subdeps, **|
+        accs = GithubAccount.where(user_id: users.map(&:id)).index_by(&:user_id)
+        users.each do |user|
+          user.github_account = accs[user.id]
+        end
+      end
+
+      define_loader :twitter_account do |users, _subdeps, **|
+        accs = TwitterAccount.where(user_id: users.map(&:id)).index_by(&:user_id)
+        users.each do |user|
+          user.twitter_account = accs[user.id]
+        end
+      end
+
       dependency :profile
       computed def age
         return nil if object&.profile&.birthday.nil?
@@ -91,6 +137,16 @@ RSpec.describe Pb::Serializer do
       dependency :profile
       computed def original_avatar_url
         object.profile.avatar_url
+      end
+
+      Account = Struct.new(:twitter, :github, keyword_init: true)
+
+      dependency :github_account, :twitter_account
+      computed def accounts
+        accs = []
+        accs << Account.new(github: github_account) if github_account
+        accs << Account.new(twitter: twitter_account) if twitter_account
+        accs
       end
     end
   end
@@ -123,11 +179,21 @@ RSpec.describe Pb::Serializer do
       t.string :company
       t.string :position
     end
+    m.create_table :github_accounts do |t|
+      t.belongs_to :user
+      t.string :login
+    end
+    m.create_table :twitter_accounts do |t|
+      t.belongs_to :user
+      t.string :login
+    end
   end
 
   after do
     m = ActiveRecord::Migration.new
     m.verbose = false
+    m.drop_table :twitter_accounts
+    m.drop_table :github_accounts
     m.drop_table :preferences
     m.drop_table :works
     m.drop_table :profiles
@@ -150,6 +216,8 @@ RSpec.describe Pb::Serializer do
       user.create_preference!(
         email: 'izumin5210@example.com'
       )
+      user.create_twitter_account!(login: 'izumin5210')
+      user.create_github_account!(login: 'izumin5210')
       profile.works.create!(company: "Foo, inc.", position: 'Software Engineer')
       profile.works.create!(company: "Bar LLC", position: 'Software Engineer')
       profile.works.create!(company: "Bar LLC", position: 'Senior Software Engineer')
@@ -172,6 +240,11 @@ RSpec.describe Pb::Serializer do
       expect(pb.works[1].position).to eq 'Software Engineer'
       expect(pb.works[2].company).to eq 'Bar LLC'
       expect(pb.works[2].position).to eq 'Senior Software Engineer'
+      expect(pb.accounts.size).to eq 2
+      expect(pb.accounts[0].twitter&.login).to be_nil
+      expect(pb.accounts[0].github&.login).to eq 'izumin5210'
+      expect(pb.accounts[1].twitter&.login).to eq 'izumin5210'
+      expect(pb.accounts[1].github&.login).to be_nil
     end
 
     it "raises a validation error when required attriutes are blank" do
@@ -179,6 +252,21 @@ RSpec.describe Pb::Serializer do
       user.create_profile!
 
       expect { sandbox::UserSerializer.serialize(user) }.to raise_error ::Pb::Serializer::ValidationError
+    end
+
+    it "raises a validation error when required oneof attributes are blank" do
+      account = Struct.new(:twitter, :github).new(nil, nil)
+
+      expect { sandbox::AccountSerializer.serialize(account) }.to raise_error ::Pb::Serializer::ValidationError
+    end
+
+    it "raises a conflict error when oneof attributes set twice" do
+      account = Struct.new(:twitter, :github).new(
+        sandbox::TwitterAccount.new(login: 'izumin5210'),
+        sandbox::TwitterAccount.new(login: 'izumin5210'),
+      )
+
+      expect { sandbox::AccountSerializer.serialize(account) }.to raise_error ::Pb::Serializer::ConflictOneofError
     end
   end
 end

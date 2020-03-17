@@ -5,12 +5,14 @@ require "computed_model"
 require "pb/serializable"
 require "pb/serializer/base"
 require "pb/serializer/attribute"
+require "pb/serializer/oneof"
 
 module Pb
   module Serializer
     class Error < StandardError; end
     class UnknownFieldError < Error; end
     class ValidationError < Error; end
+    class ConflictOneofError < Error; end
 
     class << self
       # @param [Google::Protobuf::Descriptor]

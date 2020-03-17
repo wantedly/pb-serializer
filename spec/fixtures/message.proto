@@ -18,6 +18,7 @@ message User {
 
   Preference preference = 11;
   repeated Work works = 12;
+  repeated Account accounts = 13;
 }
 
 message Preference {
@@ -33,4 +34,19 @@ message Date {
   uint32 year = 1;
   uint32 month = 2;
   uint32 day = 3;
+}
+
+message Account {
+  oneof account {
+    GithubAccount github = 1;
+    TwitterAccount twitter = 2;
+  }
+}
+
+message GithubAccount {
+  string login = 1;
+}
+
+message TwitterAccount {
+  string login = 1;
 }
