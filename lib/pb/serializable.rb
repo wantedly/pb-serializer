@@ -54,6 +54,7 @@ module Pb
           required: required,
           serializer_class: serializer,
           field_descriptor: fd,
+          oneof: @current_oneof&.name,
         )
 
         @attr_by_name ||= {}
@@ -75,6 +76,18 @@ module Pb
         else
           object.to_pb
         end
+      end
+
+      def oneof(name, required: true)
+        @oneof_by_name ||= {}
+        @current_oneof = ::Pb::Serializer::Oneof.new(
+          name: name,
+          required: required,
+          attributes: [],
+        )
+        yield
+        @oneof_by_name[name] = @current_oneof
+        @current_oneof = nil
       end
 
       # @param fd [Google::Protobuf::FieldDescriptor] a field descriptor

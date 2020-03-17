@@ -5,6 +5,7 @@ module Pb
       :required,
       :serializer_class,
       :field_descriptor,
+      :oneof,
       keyword_init: true,
     )
 

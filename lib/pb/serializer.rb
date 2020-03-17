@@ -5,6 +5,7 @@ require "computed_model"
 require "pb/serializable"
 require "pb/serializer/base"
 require "pb/serializer/attribute"
+require "pb/serializer/oneof"
 
 module Pb
   module Serializer
