@@ -42,7 +42,7 @@ module Pb
           when "google.protobuf.BytesValue"  then Pb.to_bytesval(v)
           else
             return nil if v.nil?
-            return serializer_class.serialize(v) if serializer_class
+            return serializer_class.new(v).to_pb if serializer_class
             return v.to_pb if v.kind_of?(::Pb::Serializable)
 
             raise "serializer was not found for #{field_descriptor.submsg_name}"
