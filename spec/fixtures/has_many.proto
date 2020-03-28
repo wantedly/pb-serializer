@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package example.has_many;
+
+option ruby_package = "TestFixture::HasMany";
+
+message User {
+  uint64 id = 1;
+  string name = 2;
+  repeated Post posts = 3;
+}
+
+message Post {
+  uint64 id = 1;
+  string title = 2;
+  string body = 3;
+}

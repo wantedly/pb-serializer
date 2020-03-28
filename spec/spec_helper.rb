@@ -1,6 +1,7 @@
 require "bundler/setup"
 require "pb/serializer"
-require_relative "./fixtures/message_pb"
+Dir[File.expand_path("./fixtures/**/*.rb", __dir__)].each { |f| require f }
+Dir[File.expand_path("./support/**/*.rb", __dir__)].each { |f| require f }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

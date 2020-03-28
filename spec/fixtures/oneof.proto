@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package example.oneof;
+
+option ruby_package = "TestFixture::Oneof";
+
+message User {
+  string name = 1;
+  repeated Account accounts = 2;
+}
+
+message Account {
+  oneof account {
+    GithubAccount github = 1;
+    TwitterAccount twitter = 2;
+  }
+}
+
+message GithubAccount {
+  string login = 1;
+}
+
+message TwitterAccount {
+  string login = 1;
+}

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package example.composite_model;
+
+option ruby_package = "TestFixture::CompositeModel";
+
+import "google/protobuf/wrappers.proto";
+
+message User {
+  uint32 id = 1;
+  string login = 2;
+  string display_name = 3;
+  google.protobuf.StringValue avatar_url = 4;
+  Date birthday = 6; 
+  uint32 age = 7;
+  repeated string skills = 8;
+}
+
+message Date {
+  uint32 year = 1;
+  uint32 month = 2;
+  uint32 day = 3;
+}
