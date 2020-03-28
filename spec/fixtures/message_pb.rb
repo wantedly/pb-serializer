@@ -22,8 +22,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "example.Preference" do
       optional :email, :string, 1
     end
+    add_message "example.Company" do
+      optional :name, :string, 1
+      optional :logo_image_url, :string, 2
+    end
     add_message "example.Work" do
-      optional :company, :string, 1
+      optional :company, :message, 1, "example.Company"
       optional :position, :string, 2
     end
     add_message "example.Date" do
@@ -49,6 +53,7 @@ end
 module TestFixture
   User = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("example.User").msgclass
   Preference = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("example.Preference").msgclass
+  Company = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("example.Company").msgclass
   Work = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("example.Work").msgclass
   Date = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("example.Date").msgclass
   Account = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("example.Account").msgclass

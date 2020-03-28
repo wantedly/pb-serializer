@@ -25,8 +25,13 @@ message Preference {
   string email = 1;
 }
 
+message Company {
+  string name = 1;
+  string logo_image_url = 2;
+}
+
 message Work {
-  string company = 1;
+  Company company = 1;
   string position = 2;
 }
 

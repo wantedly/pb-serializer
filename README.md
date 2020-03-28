@@ -6,23 +6,28 @@ class UserSerializer < Pb::Serializer::Base
 
   attribute :id,    required: true
   attribute :name,  required: true
-  attribute :posts, required: true, serializer: PostSerializer
+  attribute :posts, required: true
 
-  define_loader :posts do |users, subdeps, **|
-    posts = Post.where(user_id: users.map(&:id)).index_by(&:user_id)
-    users.each do |user|
-      user.posts = posts[user.id]
-    end
+  define_primary_loader :user do |subdeps, ids:, **|
+    User.where(id: ids).preload(subdeps).map { |u| new(u) }
+  end
+
+  define_loader :posts, key: -> { id } do |user_ids, subdeps, **|
+    PostSerializer.bulk_load(user_id: user_ids, with: subdeps).group_by { |s| s.post.user_id }
   end
 
   dependency :posts
   computed def post_count
-    object.posts.size
+    posts.count
   end
 end
 
 class PostSerializer < Pb::Serializer::Base
   message YourApp::Post
+
+  define_primary_loader :post do |subdeps, user_ids:, **|
+    Post.where(user_id: user_ids).preload(subdeps).map { |p| new(p) }
+  end
 
   attribute :id,    required: true
   attribute :title, required: true
@@ -34,17 +39,16 @@ class UserGrpcService < YourApp::UserService::Service
   # @param call [GRPC::ActiveCall::SingleReqView]
   # @return [YourApp::User]
   def get_users(req, call)
-    user = User.find(id: req.user_id)
-    UserSerializer.serialize(user, with: req.field_mask)
+    UserSerializer.bulk_load_and_serialize(ids: [req.user_id], with: req.field_mask)[0]
   end
 
   # @param req [YourApp::ListFriendUsersRequest]
   # @param call [GRPC::ActiveCall::SingleReqView]
   # @return [YourApp::ListFriendUsersResponse]
   def list_friend_users(req, call)
-    friends = User.find(current_user_id).friends
+    current_user = User.find(current_user_id)
     YourApp::ListFriendUsersResponse.new(
-      users: UserSerializer.serialize_repeated(friends, with: req.field_mask),
+      users: UserSerializer.bulk_load_and_serialize(ids: current_user.friend_ids, with: req.field_mask)
     )
   end
 end
