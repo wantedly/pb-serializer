@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package example.has_many_through;
+
+option ruby_package = "TestFixture::HasManyThrough";
+
+message Post {
+  uint64 id = 1;
+  string title = 2;
+  string body = 3;
+  repeated Tag tags = 4;
+}
+
+message Tag {
+  string name = 1;
+}

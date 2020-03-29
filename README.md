@@ -54,6 +54,8 @@ class UserGrpcService < YourApp::UserService::Service
 end
 ```
 
+More examples are available under [./spec/examples](./spec/examples).
+
 
 ## Installation
 
