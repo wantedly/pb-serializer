@@ -1,4 +1,15 @@
 require "bundler/setup"
+
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+end
+
+if ENV['CI']
+  require "simplecov-cobertura"
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+end
+
 require "pb/serializer"
 Dir[File.expand_path("./fixtures/**/*.rb", __dir__)].each { |f| require f }
 Dir[File.expand_path("./support/**/*.rb", __dir__)].each { |f| require f }

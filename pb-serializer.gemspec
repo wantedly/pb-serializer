@@ -38,4 +38,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rubocop", "0.67.2" # for onkcop
   spec.add_development_dependency "sqlite3", "~> 1.4"
+  spec.add_development_dependency "simplecov", "~> 0.18.5"
+  spec.add_development_dependency "simplecov-cobertura", "~> 1.3"
 end
