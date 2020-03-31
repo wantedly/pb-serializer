@@ -2,8 +2,7 @@ module Pb
   module Serializer
     class Attribute < Struct.new(
       :name,
-      :allow_nil,
-      :serializer_class,
+      :options,
       :field_descriptor,
       :oneof,
       keyword_init: true,
@@ -11,12 +10,30 @@ module Pb
 
       # @return [Boolean]
       def allow_nil?
-        allow_nil
+        options.fetch(:allow_nil, false)
+      end
+
+      # @return [Class]
+      def serializer_class
+        options[:serializer]
       end
 
       # @return [Boolean]
       def repeated?
         field_descriptor.label == :repeated
+      end
+
+      # @return [Boolean]
+      def serializable?(s)
+        cond = options[:if]
+
+        return true unless cond
+
+        case cond
+        when String, Symbol; then s.send(cond)
+        when Proc;           then s.instance_exec(&cond)
+        else raise InvalidOptionError, "`if` option can accept only Symbol, String or Proc. but got #{cond.class}"
+        end
       end
 
       def oneof?
