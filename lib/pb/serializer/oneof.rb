@@ -2,13 +2,13 @@ module Pb
   module Serializer
     class Oneof < Struct.new(
       :name,
-      :required,
+      :allow_nil,
       :attributes,
       keyword_init: true,
     )
       # @return [Boolean]
-      def required?
-        required
+      def allow_nil?
+        allow_nil
       end
     end
   end

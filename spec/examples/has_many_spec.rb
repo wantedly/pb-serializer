@@ -21,9 +21,9 @@ RSpec.describe 'has_many association' do
       class UserSerializer < Pb::Serializer::Base
         message TestFixture::HasMany::User
 
-        attribute :id,    required: true
-        attribute :name,  required: true
-        attribute :posts, required: true
+        attribute :id
+        attribute :name
+        attribute :posts
 
         define_primary_loader :user do |subdeps, ids:, **|
           User.where(id: ids).preload(subdeps).map { |u| new(u) }
@@ -32,9 +32,9 @@ RSpec.describe 'has_many association' do
       class PostSerializer < Pb::Serializer::Base
         message TestFixture::HasMany::Post
 
-        attribute :id,    required: true
-        attribute :title, required: true
-        attribute :body,  required: true
+        attribute :id
+        attribute :title
+        attribute :body
       end
     end
 
@@ -75,7 +75,7 @@ RSpec.describe 'has_many association' do
 
     module self::Sandbox
       class UserSerializer < Pb::Serializer::Base
-        attribute :posts, required: true, serializer: PostSerializer
+        attribute :posts, serializer: PostSerializer
         delegate_dependency :posts, to: :user, include_subdeps: true
       end
     end

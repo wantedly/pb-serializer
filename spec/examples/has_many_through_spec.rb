@@ -31,7 +31,7 @@ RSpec.describe 'has_many_through associaitons' do
       class TagSerializer < Pb::Serializer::Base
         message TestFixture::HasManyThrough::Tag
 
-        attribute :name, required: true
+        attribute :name
       end
       class PostSerializer < Pb::Serializer::Base
         message TestFixture::HasManyThrough::Post
@@ -40,9 +40,9 @@ RSpec.describe 'has_many_through associaitons' do
           Post.where(id: ids).preload(subdeps).map { |p| new(p) }
         end
 
-        attribute :id,    required: true
-        attribute :title, required: true
-        attribute :body,  required: true
+        attribute :id
+        attribute :title
+        attribute :body
       end
     end
 
@@ -80,7 +80,7 @@ RSpec.describe 'has_many_through associaitons' do
 
     module self::Sandbox
       class PostSerializer < Pb::Serializer::Base
-        attribute :tags, required: true, serializer: TagSerializer
+        attribute :tags, serializer: TagSerializer
         delegate_dependency :tags, to: :post, include_subdeps: true
       end
     end
@@ -96,7 +96,7 @@ RSpec.describe 'has_many_through associaitons' do
         end
       end
       class PostSerializer < Pb::Serializer::Base
-        attribute :tags, required: true
+        attribute :tags
 
         define_loader :tags, key: -> { id } do |post_ids, subdeps, **|
           taggings = PostTagging.where(post_id: post_ids).pluck(:tag_id, :post_id).each_with_object({}) { |(t_id, p_id) ,h| (h[p_id] ||= []) << t_id }

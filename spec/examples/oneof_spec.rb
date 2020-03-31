@@ -24,17 +24,17 @@ RSpec.describe 'oneof field' do
     class TwitterAccount < ActiveRecord::Base; end
     class GithubAccountSerializer < Pb::Serializer::Base
       message TestFixture::Oneof::GithubAccount
-      attribute :login, required: true
+      attribute :login
     end
     class TwitterAccountSerializer < Pb::Serializer::Base
       message TestFixture::Oneof::TwitterAccount
 
-      attribute :login, required: true
+      attribute :login
     end
     class AccountSerializer < Pb::Serializer::Base
       message TestFixture::Oneof::Account
 
-      oneof :account, required: true do
+      oneof :account do
         attribute :github,  serializer: GithubAccountSerializer
         attribute :twitter, serializer: TwitterAccountSerializer
       end
@@ -42,8 +42,8 @@ RSpec.describe 'oneof field' do
     class UserSerializer < Pb::Serializer::Base
       message TestFixture::Oneof::User
 
-      attribute :name,     required: true
-      attribute :accounts, required: true, serializer: AccountSerializer
+      attribute :name
+      attribute :accounts, serializer: AccountSerializer
 
       delegate_dependency :github_accounts,  to: :user, include_subdeps: true
       delegate_dependency :twitter_accounts, to: :user, include_subdeps: true
