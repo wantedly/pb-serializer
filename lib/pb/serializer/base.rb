@@ -8,14 +8,15 @@ module Pb
 
       attr_reader :object
 
-      def initialize(object)
+      def initialize(object, *)
         @object = object
       end
 
       module Hook
         def define_primary_loader(name, &block)
           class_eval <<~RUBY
-            def initialize(object)
+            def initialize(*args)
+              super
               @#{name} = object
             end
           RUBY
