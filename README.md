@@ -1,4 +1,8 @@
 # Pb::Serializer
+[![CI](https://github.com/wantedly/pb-serializer/workflows/CI/badge.svg?branch=master)](https://github.com/wantedly/pb-serializer/actions?query=workflow%3ACI+branch%3Amaster)
+[![codecov](https://codecov.io/gh/wantedly/pb-serializer/branch/master/graph/badge.svg)](https://codecov.io/gh/wantedly/pb-serializer)
+[![Gem Version](https://badge.fury.io/rb/pb-serializer.svg)](https://badge.fury.io/rb/pb-serializer)
+[![License](https://img.shields.io/github/license/wantedly/pb-serializer)](./LICENSE)
 
 ```rb
 class UserSerializer < Pb::Serializer::Base
