@@ -15,7 +15,7 @@ module Pb
       self.class.message_class.descriptor.each do |fd|
         attr = self.class.find_attribute_by_field_descriptor(fd)
 
-        next unless attr # TODO
+        next unless attr.serializable?(self)
 
         raise "#{self.name}.#{attr.name} is not defined" unless respond_to?(attr.name)
 
@@ -91,16 +91,18 @@ module Pb
       end
 
       # @param name [Symbol] An attribute name
-      # @param allow_nil [Boolean] Set true if this attribute allow to be nil
-      # @param serializer [Class] A serializer class for this attribute
-      def attribute(name, allow_nil: false, serializer: nil)
+      # @param [Hash] opts options
+      # @option opts [Boolean] :allow_nil Set true if this attribute allow to be nil
+      # @option opts [Class] :serializer A serializer class for this attribute
+      # @option opts [String, Symbol, Proc] :if A method, proc or string to call to determine to serialize this field
+      def attribute(name, opts = {})
         fd = message_class.descriptor.find { |fd| fd.name.to_sym == name }
+
         raise ::Pb::Serializer::UnknownFieldError, "#{name} is not defined in #{message_class.name}" unless fd
 
         attr = ::Pb::Serializer::Attribute.new(
           name: name,
-          allow_nil: allow_nil,
-          serializer_class: serializer,
+          options: opts,
           field_descriptor: fd,
           oneof: @current_oneof&.name,
         )

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package example.oneof;
+
+option ruby_package = "TestFixture::Simple";
+
+message Message {
+  string body = 1;
+}
