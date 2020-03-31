@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Support `if` option https://github.com/wantedly/pb-serializer/pull/24
+
+
 ## 0.2.1
 
 - **BREAKING CHANGE** `required` -> `allow_nil` https://github.com/wantedly/pb-serializer/pull/21
