@@ -2,7 +2,7 @@ module Pb
   module Serializer
     class Attribute < Struct.new(
       :name,
-      :required,
+      :allow_nil,
       :serializer_class,
       :field_descriptor,
       :oneof,
@@ -10,8 +10,8 @@ module Pb
     )
 
       # @return [Boolean]
-      def required?
-        required
+      def allow_nil?
+        allow_nil
       end
 
       # @return [Boolean]
@@ -25,6 +25,7 @@ module Pb
 
       # @param v [Object]
       def convert_to_pb(v, should_repeat: repeated?)
+        return nil if v.nil?
         return v.map { |i| convert_to_pb(i, should_repeat: false) } if should_repeat
 
         case field_descriptor.type
@@ -41,7 +42,6 @@ module Pb
           when "google.protobuf.BoolValue"   then Pb.to_boolval(v)
           when "google.protobuf.BytesValue"  then Pb.to_bytesval(v)
           else
-            return nil if v.nil?
             return serializer_class.new(v).to_pb if serializer_class
             return v.to_pb if v.kind_of?(::Pb::Serializable)
 

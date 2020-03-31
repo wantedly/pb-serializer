@@ -42,19 +42,19 @@ RSpec.describe 'composite AR models into 1 message' do
     class DateSerializer < Pb::Serializer::Base
       message TestFixture::CompositeModel::Date
 
-      attribute :year,  required: true
-      attribute :month, required: true
-      attribute :day,   required: true
+      attribute :year
+      attribute :month
+      attribute :day
     end
 
     class UserSerializer < Pb::Serializer::Base
       message TestFixture::CompositeModel::User
 
-      attribute :id,           required: true
-      attribute :login,        required: true
-      attribute :display_name, required: true
+      attribute :id
+      attribute :login
+      attribute :display_name
       attribute :avatar_url
-      attribute :birthday,     serializer: DateSerializer
+      attribute :birthday, serializer: DateSerializer
       attribute :age
       attribute :skills
 

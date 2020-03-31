@@ -22,18 +22,18 @@ module Pb
         v = public_send(attr.name)
         v = attr.convert_to_pb(v)
 
-        if attr.required && attr.field_descriptor.default == v
+        if attr.oneof?
+          if !v.nil?
+            if oneof_set.include?(attr.oneof)
+              raise ::Pb::Serializer::ConflictOneofError, "#{primary_object.class.name}##{attr.name} is oneof attribute"
+            end
+            oneof_set << attr.oneof
+          end
+        elsif !attr.allow_nil? && v.nil?
           raise ::Pb::Serializer::ValidationError, "#{primary_object.class.name}##{attr.name} is required"
         end
 
         next if v.nil?
-
-        if attr.oneof?
-          if oneof_set.include?(attr.oneof)
-            raise ::Pb::Serializer::ConflictOneofError, "#{primary_object.class.name}##{attr.name} is oneof attribute"
-          end
-          oneof_set << attr.oneof
-        end
 
         if attr.repeated?
           o.public_send(attr.name).push(*v)
@@ -44,7 +44,7 @@ module Pb
 
       self.class.oneofs.each do |oneof|
         next if oneof_set.include?(oneof.name)
-        next unless oneof.required?
+        next if oneof.allow_nil?
         raise ::Pb::Serializer::ValidationError, "#{primary_object.class.name}##{oneof.name} is required"
       end
 
@@ -91,15 +91,15 @@ module Pb
       end
 
       # @param name [Symbol] An attribute name
-      # @param required [Boolean] Set true if this attribute should not zero-value
+      # @param allow_nil [Boolean] Set true if this attribute allow to be nil
       # @param serializer [Class] A serializer class for this attribute
-      def attribute(name, required: false, serializer: nil)
+      def attribute(name, allow_nil: false, serializer: nil)
         fd = message_class.descriptor.find { |fd| fd.name.to_sym == name }
         raise ::Pb::Serializer::UnknownFieldError, "#{name} is not defined in #{message_class.name}" unless fd
 
         attr = ::Pb::Serializer::Attribute.new(
           name: name,
-          required: required,
+          allow_nil: allow_nil,
           serializer_class: serializer,
           field_descriptor: fd,
           oneof: @current_oneof&.name,
@@ -126,11 +126,11 @@ module Pb
         bulk_load_and_compute(with, **args)
       end
 
-      def oneof(name, required: true)
+      def oneof(name, allow_nil: false)
         @oneof_by_name ||= {}
         @current_oneof = ::Pb::Serializer::Oneof.new(
           name: name,
-          required: required,
+          allow_nil: allow_nil,
           attributes: [],
         )
         yield

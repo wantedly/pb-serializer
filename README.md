@@ -4,9 +4,9 @@
 class UserSerializer < Pb::Serializer::Base
   message YourApp::User
 
-  attribute :id,    required: true
-  attribute :name,  required: true
-  attribute :posts, required: true
+  attribute :id
+  attribute :name
+  attribute :posts
 
   define_primary_loader :user do |subdeps, ids:, **|
     User.where(id: ids).preload(subdeps).map { |u| new(u) }
@@ -29,9 +29,9 @@ class PostSerializer < Pb::Serializer::Base
     Post.where(user_id: user_ids).preload(subdeps).map { |p| new(p) }
   end
 
-  attribute :id,    required: true
-  attribute :title, required: true
-  attribute :body,  required: true
+  attribute :id
+  attribute :title
+  attribute :body
 end
 
 class UserGrpcService < YourApp::UserService::Service
