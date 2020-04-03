@@ -15,6 +15,17 @@ module Pb
       self.class.message_class.descriptor.each do |fd|
         attr = self.class.find_attribute_by_field_descriptor(fd)
 
+        unless attr
+          msg = "#{self.class.message_class.name}.#{fd.name} is missed in #{self.class.name}"
+
+          case Pb::Serializer.configuration.missing_field_behavior
+          when :raise then raise ::Pb::Serializer::MissingFieldError, msg
+          when :warn  then Pb::Serializer.logger.warn msg
+          end
+
+          next
+        end
+
         next unless attr.serializable?(self)
 
         raise "#{self.name}.#{attr.name} is not defined" unless respond_to?(attr.name)
@@ -149,9 +160,7 @@ module Pb
       # @param fd [Google::Protobuf::FieldDescriptor] a field descriptor
       # @return [Pb::Serializer::Attribute, nil]
       def find_attribute_by_field_descriptor(fd)
-        (@attr_by_name || {})[fd.name.to_sym].tap do |attr|
-          raise ::Pb::Serializer::MissingFieldError, "#{message_class.name}.#{fd.name} is missed in #{self.name}" if attr.nil?
-        end
+        (@attr_by_name || {})[fd.name.to_sym]
       end
 
       def oneofs
