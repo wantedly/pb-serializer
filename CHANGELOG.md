@@ -1,6 +1,10 @@
 ## Unreleased
 
 - Support `if` option https://github.com/wantedly/pb-serializer/pull/24
+- Improve error handling https://github.com/wantedly/pb-serializer/pull/26
+    - raise `MissingMessageTypeError` if `message` declaration is missed
+    - raise `MissingFieldError` if `attribute` declaration is missed
+    - raise `InvalidOptionError` when `attribute` receives invalid params
 
 
 ## 0.2.1

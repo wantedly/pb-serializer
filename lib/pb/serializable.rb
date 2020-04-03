@@ -96,6 +96,8 @@ module Pb
       # @option opts [Class] :serializer A serializer class for this attribute
       # @option opts [String, Symbol, Proc] :if A method, proc or string to call to determine to serialize this field
       def attribute(name, opts = {})
+        raise ::Pb::Serializer::MissingMessageTypeError, "message specificaiton is missed" unless message_class
+
         fd = message_class.descriptor.find { |fd| fd.name.to_sym == name }
 
         raise ::Pb::Serializer::UnknownFieldError, "#{name} is not defined in #{message_class.name}" unless fd
@@ -147,7 +149,9 @@ module Pb
       # @param fd [Google::Protobuf::FieldDescriptor] a field descriptor
       # @return [Pb::Serializer::Attribute, nil]
       def find_attribute_by_field_descriptor(fd)
-        @attr_by_name[fd.name.to_sym]
+        (@attr_by_name || {})[fd.name.to_sym].tap do |attr|
+          raise ::Pb::Serializer::MissingFieldError, "#{message_class.name}.#{fd.name} is missed in #{self.name}" if attr.nil?
+        end
       end
 
       def oneofs

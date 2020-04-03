@@ -10,9 +10,12 @@ require "pb/serializer/oneof"
 module Pb
   module Serializer
     class Error < StandardError; end
+    class MissingMessageTypeError < Error; end
     class UnknownFieldError < Error; end
     class ValidationError < Error; end
     class ConflictOneofError < Error; end
+    class InvalidOptionError < Error; end
+    class MissingFieldError < Error; end
 
     class << self
       # @param [Google::Protobuf::Descriptor]

@@ -8,6 +8,17 @@ module Pb
       keyword_init: true,
     )
 
+      ALLOWED_OPTIONS = Set[:allow_nil, :if, :serializer].freeze
+
+      def initialize(options:, **)
+        super
+
+        unknown_options = options.keys.to_set - ALLOWED_OPTIONS
+        unless unknown_options.empty?
+          raise InvalidOptionError, "unknown options are specified in #{name} attribute: #{unknown_options.to_a}"
+        end
+      end
+
       # @return [Boolean]
       def allow_nil?
         options.fetch(:allow_nil, false)
