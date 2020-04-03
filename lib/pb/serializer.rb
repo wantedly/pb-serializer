@@ -15,7 +15,7 @@ module Pb
     class UnknownFieldError < Error; end
     class ValidationError < Error; end
     class ConflictOneofError < Error; end
-    class InvalidOptionError < Error; end
+    class InvalidAttributeOptionError < Error; end
     class MissingFieldError < Error; end
 
     class Configuration

@@ -15,7 +15,7 @@ module Pb
 
         unknown_options = options.keys.to_set - ALLOWED_OPTIONS
         unless unknown_options.empty?
-          raise InvalidOptionError, "unknown options are specified in #{name} attribute: #{unknown_options.to_a}"
+          raise InvalidAttributeOptionError, "unknown options are specified in #{name} attribute: #{unknown_options.to_a}"
         end
       end
 
@@ -43,7 +43,7 @@ module Pb
         case cond
         when String, Symbol; then s.send(cond)
         when Proc;           then s.instance_exec(&cond)
-        else raise InvalidOptionError, "`if` option can accept only Symbol, String or Proc. but got #{cond.class}"
+        else raise InvalidAttributeOptionError, "`if` option can accept only Symbol, String or Proc. but got #{cond.class}"
         end
       end
 

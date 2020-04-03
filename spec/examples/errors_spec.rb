@@ -14,7 +14,7 @@ RSpec.describe 'errors' do
 
         attribute :body, foo: :bar
       end
-    }.to raise_error Pb::Serializer::InvalidOptionError
+    }.to raise_error Pb::Serializer::InvalidAttributeOptionError
   end
 
   it 'raises an error when unknown fied is declared' do
