@@ -58,6 +58,10 @@ module Pb
 
         case field_descriptor.type
         when :message
+          if v.class < Google::Protobuf::MessageExts && v.class.descriptor.name == field_descriptor.submsg_name
+            return v
+          end
+
           case field_descriptor.submsg_name
           when "google.protobuf.Timestamp"   then Pb.to_timestamp(v)
           when "google.protobuf.StringValue" then Pb.to_strval(v)

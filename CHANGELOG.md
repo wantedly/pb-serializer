@@ -8,6 +8,7 @@
 - Introduce Pb::Serializer.configure https://github.com/wantedly/pb-serializer/pull/27
     - Add `missing_field_behavior` config to suppress `MissingFieldError`
     - Rename `InvalidOptionError` -> `InvalidAttributeOptionError`
+- Skip serializing when a value is already serialized https://github.com/wantedly/pb-serializer/pull/29
 
 
 ## 0.2.1
