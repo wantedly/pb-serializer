@@ -73,4 +73,9 @@ RSpec.describe 'errors' do
       it { is_expected.to be_a TestFixture::Simple::Message }
     end
   end
+
+  it 'raises when set invalid param to missing_field_behavior config' do
+    config = Pb::Serializer::Configuration.new
+    expect { config.missing_field_behavior = :foobar }.to raise_error Pb::Serializer::InvalidConfigurationError
+  end
 end
