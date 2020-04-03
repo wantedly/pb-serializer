@@ -5,6 +5,9 @@
     - raise `MissingMessageTypeError` if `message` declaration is missed
     - raise `MissingFieldError` if `attribute` declaration is missed
     - raise `InvalidOptionError` when `attribute` receives invalid params
+- Introduce Pb::Serializer.configure https://github.com/wantedly/pb-serializer/pull/27
+    - Add `missing_field_behavior` config to suppress `MissingFieldError`
+    - Rename `InvalidOptionError` -> `InvalidAttributeOptionError`
 
 
 ## 0.2.1
