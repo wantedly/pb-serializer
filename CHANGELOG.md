@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 0.3.0
+
 - Support `if` option https://github.com/wantedly/pb-serializer/pull/24
 - Improve error handling https://github.com/wantedly/pb-serializer/pull/26
     - raise `MissingMessageTypeError` if `message` declaration is missed
