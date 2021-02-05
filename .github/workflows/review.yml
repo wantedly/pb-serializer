@@ -15,11 +15,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install libsqlite3-dev
 
-    - name: Setup reviewdog
-      run: |
-        mkdir -p $HOME/bin
-        curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b $HOME/bin
-        echo "$HOME/bin" >> $GITHUB_PATH
+    - uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: latest
 
     - run: gem install bundler -v 2.1.4
 
