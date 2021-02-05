@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package example.extend_initialization;
+
+option ruby_package = "TestFixture::ExtendInitialization";
+
+message User {
+  string name = 1;
+}
