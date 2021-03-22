@@ -15,10 +15,14 @@ module Pb
       module Hook
         def define_primary_loader(name, &block)
           class_eval <<~RUBY
-            def initialize(*args)
-              super
-              @#{name} = object
+            module PbSerializerDefinePrimaryLoaderPrependMethods
+              def initialize(*args)
+                super
+                @#{name} = object
+              end
             end
+
+            prepend PbSerializerDefinePrimaryLoaderPrependMethods
           RUBY
 
           super
