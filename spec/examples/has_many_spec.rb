@@ -54,24 +54,48 @@ RSpec.describe 'has_many association' do
     end
 
     execute_and_record_queries do
-      sandbox::UserSerializer.bulk_load_and_serialize(ids: users.map(&:id))
+      sandbox::UserSerializer.bulk_load_and_serialize(ids: users.map(&:id), with: with)
     end
+  end
 
+  shared_examples 'fetch all fields' do
     it { expect(result[0].name).to eq 'Test User1' }
     it { expect(result[0].posts.size).to eq 2 }
     it { expect(result[0].posts[0].title).to eq 'Post 1' }
     it 'preloads sub-dependencies' do
-      expect(queries.select { |name:, **| name.end_with?(' Load') }.size).to eq 2
-    end
-
-    context 'when a required field is null' do
-      before { users[0].posts.create(title: 'Post invalid') }
-      it { expect { result }.to raise_error ::Pb::Serializer::ValidationError }
+      expect(queries.select { |args| args[:name].end_with?(' Load') }.size).to eq 2
     end
   end
 
   context 'load posts as sub-dependencies' do
     include_context 'serializes successfully'
+    it_behaves_like 'fetch all fields'
+
+    let(:with) { nil }
+
+    context 'when a required field is null' do
+      before { users[0].posts.create(title: 'Post invalid') }
+      it { expect { result }.to raise_error ::Pb::Serializer::ValidationError }
+    end
+
+    context 'when load only 1 field' do
+      let(:with) { [:name] }
+      it { expect(result[0].name).to eq 'Test User1' }
+      it { expect(result[0].posts.size).to eq 0 }
+      it 'loads only users table' do
+        expect(queries.size).to eq 1
+        expect(queries.select  { |args| args[:name].end_with?('User Load') }.size).to eq 1
+      end
+    end
+
+    context 'when load nested fields' do
+      let(:with) { Google::Protobuf::FieldMask.new(paths: ["name","posts.id", "posts.title"]) }
+      it { expect(result[0].name).to eq 'Test User1' }
+      it { expect(result[0].posts.size).to eq 2 }
+      it { expect(result[0].posts[0].title).to eq 'Post 1' }
+      it { expect(result[0].posts[1].title).to eq 'Post 2' }
+      it { expect(result[0].posts[0].body).to be_empty }
+    end
 
     module self::Sandbox
       class UserSerializer < Pb::Serializer::Base
@@ -83,6 +107,14 @@ RSpec.describe 'has_many association' do
 
   context 'load posts with user-defined loader' do
     include_context 'serializes successfully'
+    it_behaves_like 'fetch all fields'
+
+    let(:with) { nil }
+
+    context 'when a required field is null' do
+      before { users[0].posts.create(title: 'Post invalid') }
+      it { expect { result }.to raise_error ::Pb::Serializer::ValidationError }
+    end
 
     module self::Sandbox
       class UserSerializer < Pb::Serializer::Base

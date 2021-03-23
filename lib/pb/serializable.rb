@@ -6,8 +6,15 @@ module Pb
       base.singleton_class.prepend Hook
     end
 
+    # @param with [
+    #   Google::Protobuf::FieldMask,
+    #   Array<(Symbol, Hash)>,
+    #   Hash{Symbol=>(Array,Symbol,Hash)},
+    #   Pb::Serializer::NormalizedMask
+    # ]
     def to_pb(with: nil)
-      # TODO: apply masks
+      with ||= ::Pb::Serializer.build_default_mask(self.class.message_class.descriptor)
+      with = ::Pb::Serializer::NormalizedMask.build(with)
 
       oneof_set = []
 
@@ -26,12 +33,13 @@ module Pb
           next
         end
 
+        next unless with.key?(attr.name)
         next unless attr.serializable?(self)
 
         raise "#{self.name}.#{attr.name} is not defined" unless respond_to?(attr.name)
 
         v = public_send(attr.name)
-        v = attr.convert_to_pb(v)
+        v = attr.convert_to_pb(v, with: with[attr.name])
 
         if attr.oneof?
           if !v.nil?
@@ -128,7 +136,7 @@ module Pb
         end
       end
 
-      # @param with [Array, Google::Protobuf::FieldMask, nil]
+      # @param with [Array, Hash, Google::Protobuf::FieldMask, nil]
       # @return [Array]
       def bulk_load_and_serialize(with: nil, **args)
         bulk_load(with: with, **args).map { |s| s.to_pb(with: with) }
@@ -136,6 +144,7 @@ module Pb
 
       def bulk_load(with: nil, **args)
         with ||= ::Pb::Serializer.build_default_mask(message_class.descriptor)
+        with = ::Pb::Serializer::NormalizedMask.build(with)
         with = with.reject { |c| (__pb_serializer_attrs & (c.kind_of?(Hash) ? c.keys : [c])).empty? }
 
         bulk_load_and_compute(with, **args)

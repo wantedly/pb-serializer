@@ -1,8 +1,10 @@
 require "pb/serializer/version"
 require "the_pb"
 require "computed_model"
+require "google/protobuf/field_mask_pb"
 
 require "pb/serializable"
+require "pb/serializer/normalized_mask"
 require "pb/serializer/base"
 require "pb/serializer/attribute"
 require "pb/serializer/oneof"
