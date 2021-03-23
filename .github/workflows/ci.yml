@@ -9,8 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest ]
-        # ruby: [ 2.5, 2.6, 2.7 ] # TODO: Wait for supporting Ruby 2.7 in google-protobuf
-        ruby: [ 2.5, 2.6 ]
+        ruby: [ 2.5, 2.6, 2.7, 3.0 ]
     runs-on: ${{ matrix.os }}
 
     steps:
