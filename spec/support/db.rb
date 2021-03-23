@@ -29,7 +29,7 @@ module DBHelper
         queries = []
 
         ActiveSupport::Notifications.subscribed(
-          -> (_, _, _, _, sql:, name:, **args) { queries << { name: name, sql: sql } },
+          -> (_, _, _, _, args) { queries << { name: args[:name], sql: args[:sql] } },
           'sql.active_record',
         ) do
           resp = instance_eval(&block)
