@@ -129,6 +129,6 @@ RSpec.describe 'composite AR models into 1 message' do
   it { expect(result[1].age).to eq 29 }
   it { expect(result[1].skills).to match %w(Rust C++) }
   it 'preloads sub-dependencies' do
-    expect(queries.select { |name:, **| name.end_with?(' Load') }.size).to eq 4
+    expect(queries.select { |args| args[:name].end_with?(' Load') }.size).to eq 4
   end
 end

@@ -136,6 +136,13 @@ module Pb
         end
       end
 
+      # @param names [Array<Symbol>] Attribute names to be ignored
+      def ignore(*names)
+        names.each do |name|
+          attribute name, ignore: true
+        end
+      end
+
       # @param with [Array, Hash, Google::Protobuf::FieldMask, nil]
       # @return [Array]
       def bulk_load_and_serialize(with: nil, **args)

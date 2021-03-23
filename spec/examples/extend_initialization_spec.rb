@@ -72,6 +72,6 @@ RSpec.describe 'extend initialize method with `define_primary_loader`' do
   it { expect(result[1].name).to eq 'Yuki Nakamura' }
 
   it 'preloads sub-dependencies' do
-    expect(queries.select { |name:, **| name.end_with?(' Load') }.size).to eq 2
+    expect(queries.select { |args| args[:name].end_with?(' Load') }.size).to eq 2
   end
 end

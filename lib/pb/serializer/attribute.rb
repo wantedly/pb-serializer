@@ -8,7 +8,7 @@ module Pb
       keyword_init: true,
     )
 
-      ALLOWED_OPTIONS = Set[:allow_nil, :if, :serializer].freeze
+      ALLOWED_OPTIONS = Set[:allow_nil, :if, :serializer, :ignore].freeze
 
       def initialize(options:, **)
         super
@@ -36,6 +36,8 @@ module Pb
 
       # @return [Boolean]
       def serializable?(s)
+        return false if options[:ignore]
+
         cond = options[:if]
 
         return true unless cond
