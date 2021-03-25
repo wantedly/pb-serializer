@@ -49,11 +49,7 @@ module Pb::Serializer
 
       def deep_merge!(h1, h2)
         h1.merge!(h2) do |_k, v1, v2|
-          if v1.kind_of?(Hash) && v2.kind_of?(Hash)
-            deep_merge!(v1, v2)
-          else
-            v2
-          end
+          deep_merge!(v1, v2)
         end
       end
     end

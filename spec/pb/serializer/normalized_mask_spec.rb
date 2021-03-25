@@ -10,6 +10,31 @@ RSpec.describe Pb::Serializer::NormalizedMask do
     context 'when the input is an array' do
       let(:input) { [:foo, bar: :baz, qux: [:quux]] }
       it { is_expected.to match({ foo: {}, bar: { baz: {} }, qux: { quux: {} } }) }
+
+      context 'when the input has same hash keys' do
+        let(:input) do
+          [
+            { foo: :bar },
+            { foo: [:baz] },
+            {
+              foo: [
+                { qux: [:quux] },
+                { qux: [:corge] },
+              ],
+            },
+          ]
+        end
+        let(:normalized) do
+          {
+            foo: {
+              bar: {},
+              baz: {},
+              qux: { quux: {}, corge: {} },
+            },
+          }
+        end
+        it { is_expected.to match normalized }
+      end
     end
 
     context 'when the input is a google.protobuf.FieldMask' do
