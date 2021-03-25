@@ -20,7 +20,7 @@ RSpec.describe Pb::Serializer::NormalizedMask do
           "bar.qux.quux",
         ])
       end
-      it { is_expected.to match({ foo: {}, bar: { baz: {} , qux: { quux: {} } } }) }
+      it { is_expected.to match({ foo: {}, bar: { baz: {}, qux: { quux: {} } } }) }
     end
   end
 end
