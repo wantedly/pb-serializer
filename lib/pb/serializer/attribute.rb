@@ -54,9 +54,10 @@ module Pb
       end
 
       # @param v [Object]
-      def convert_to_pb(v, should_repeat: repeated?)
+      # @param with [Pb::Serializer::NormalizedMask]
+      def convert_to_pb(v, with: nil, should_repeat: repeated?)
         return nil if v.nil?
-        return v.map { |i| convert_to_pb(i, should_repeat: false) } if should_repeat
+        return v.map { |i| convert_to_pb(i, should_repeat: false, with: with) } if should_repeat
 
         case field_descriptor.type
         when :message
@@ -76,8 +77,8 @@ module Pb
           when "google.protobuf.BoolValue"   then Pb.to_boolval(v)
           when "google.protobuf.BytesValue"  then Pb.to_bytesval(v)
           else
-            return serializer_class.new(v).to_pb if serializer_class
-            return v.to_pb if v.kind_of?(::Pb::Serializable)
+            return serializer_class.new(v).to_pb(with: with) if serializer_class
+            return v.to_pb(with: with) if v.kind_of?(::Pb::Serializable)
 
             raise "serializer was not found for #{field_descriptor.submsg_name}"
           end
