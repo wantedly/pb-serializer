@@ -1,5 +1,11 @@
 ## Unreleased
 
+## 0.4.0
+
+- Make `#initialize` extensible used with `define_primary_loader` https://github.com/wantedly/pb-serializer/pull/31
+- Supoprt `ignore` directive https://github.com/wantedly/pb-serializer/pull/36
+- Support field mask https://github.com/wantedly/pb-serializer/pull/34
+
 ## 0.3.0
 
 - Support `if` option https://github.com/wantedly/pb-serializer/pull/24
