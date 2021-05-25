@@ -45,8 +45,8 @@ RSpec.describe 'oneof field' do
       attribute :name
       attribute :accounts, serializer: AccountSerializer
 
-      delegate_dependency :github_accounts,  to: :user, include_subdeps: true
-      delegate_dependency :twitter_accounts, to: :user, include_subdeps: true
+      delegate_dependency :github_accounts,  to: :user, include_subfields: true
+      delegate_dependency :twitter_accounts, to: :user, include_subfields: true
 
       define_primary_loader :user do |subdeps, ids:, **|
         User.where(id: ids).preload(subdeps).map { |u| new(u) }

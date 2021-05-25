@@ -60,12 +60,13 @@ RSpec.describe 'composite AR models into 1 message' do
 
       delegate_dependency :avatar_url, to: :profile
       delegate_dependency :birthday,   to: :profile
-      delegate_dependency :skills,     to: :profile, prefix: :_, include_subdeps: true
+      delegate_dependency :skills,     to: :profile, prefix: :_, include_subfields: true
 
       define_primary_loader :user do |subdeps, ids:, **|
         User.where(id: ids).preload(subdeps).map { |u| new(u) }
       end
 
+      dependency :user
       define_loader :profile, key: -> { id } do |keys, subdeps, **|
         Profile.where(user_id: keys).preload(subdeps).index_by(&:user_id)
       end
@@ -75,7 +76,7 @@ RSpec.describe 'composite AR models into 1 message' do
         profile.name
       end
 
-      dependency :profile
+      dependency :profile, :birthday
       computed def age
         return nil if birthday.nil?
         [TODAY, birthday].map {|d| d.strftime("%Y%m%d").to_i }.yield_self {|(t, b)| t - b } / 10000

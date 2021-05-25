@@ -100,7 +100,7 @@ RSpec.describe 'has_many association' do
     module self::Sandbox
       class UserSerializer < Pb::Serializer::Base
         attribute :posts, serializer: PostSerializer
-        delegate_dependency :posts, to: :user, include_subdeps: true
+        delegate_dependency :posts, to: :user, include_subfields: true
       end
     end
   end
@@ -118,6 +118,7 @@ RSpec.describe 'has_many association' do
 
     module self::Sandbox
       class UserSerializer < Pb::Serializer::Base
+        dependency :user
         define_loader :posts, key: -> { id } do |user_ids, subdeps, **|
           PostSerializer.bulk_load(user_ids: user_ids, with: subdeps).group_by { |s| s.post.user_id }
         end
