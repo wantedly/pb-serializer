@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 0.5.0
+
+- Bump `computed_model` from 0.2.2 to 0.3.0 https://github.com/wantedly/pb-serializer/pull/38
+
 ## 0.4.0
 
 - Make `#initialize` extensible used with `define_primary_loader` https://github.com/wantedly/pb-serializer/pull/31
