@@ -81,7 +81,7 @@ RSpec.describe 'has_many_through associaitons' do
     module self::Sandbox
       class PostSerializer < Pb::Serializer::Base
         attribute :tags, serializer: TagSerializer
-        delegate_dependency :tags, to: :post, include_subdeps: true
+        delegate_dependency :tags, to: :post, include_subfields: true
       end
     end
   end
@@ -98,6 +98,7 @@ RSpec.describe 'has_many_through associaitons' do
       class PostSerializer < Pb::Serializer::Base
         attribute :tags
 
+        dependency :post
         define_loader :tags, key: -> { id } do |post_ids, subdeps, **|
           taggings = PostTagging.where(post_id: post_ids).pluck(:tag_id, :post_id).each_with_object({}) { |(t_id, p_id) ,h| (h[p_id] ||= []) << t_id }
           tags = TagSerializer.bulk_load(with: subdeps, ids: taggings.values.flatten).index_by { |s| s.tag.id }

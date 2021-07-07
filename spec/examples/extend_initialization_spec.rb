@@ -26,7 +26,7 @@ RSpec.describe 'extend initialize method with `define_primary_loader`' do
 
       attribute :name
 
-      delegate_dependency :names, to: :user, prefix: :_, include_subdeps: true
+      delegate_dependency :names, to: :user, prefix: :_, include_subfields: true
 
       def initialize(_, locale)
         super

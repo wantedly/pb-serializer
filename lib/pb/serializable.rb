@@ -1,8 +1,9 @@
 module Pb
   module Serializable
+    extend ActiveSupport::Concern
+    include ComputedModel::Model
     def self.included(base)
       base.extend ClassMethods
-      base.include ComputedModel
       base.singleton_class.prepend Hook
     end
 
@@ -153,6 +154,13 @@ module Pb
         with ||= ::Pb::Serializer.build_default_mask(message_class.descriptor)
         with = ::Pb::Serializer::NormalizedMask.build(with)
         with = with.reject { |c| (__pb_serializer_attrs & (c.kind_of?(Hash) ? c.keys : [c])).empty? }
+
+        primary_object_name = __pb_serializer_primary_model_name
+        if primary_object_name
+          (with[primary_object_name] ||= []) << true
+        elsif self < Serializer::Base
+          (with[:object] ||= []) << true
+        end
 
         bulk_load_and_compute(with, **args)
       end
