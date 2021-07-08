@@ -54,7 +54,7 @@ module Pb
       end
 
       # @param v [Object]
-      # @param with [Pb::Serializer::NormalizedMask]
+      # @param with [Hash, Array]
       def convert_to_pb(v, with: nil, should_repeat: repeated?)
         return nil if v.nil?
         return v.map { |i| convert_to_pb(i, should_repeat: false, with: with) } if should_repeat
