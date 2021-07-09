@@ -27,8 +27,10 @@ module Pb
         @attr_by_name ||= {}
         @attr_by_name[name] = attr
 
-        define_method attr.name do
-          primary_object.public_send(attr.name)
+        unless method_defined?(attr.name)
+          define_method attr.name do
+            primary_object.public_send(attr.name)
+          end
         end
       end
 
