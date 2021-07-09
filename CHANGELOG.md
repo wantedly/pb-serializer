@@ -1,5 +1,13 @@
 ## Unreleased
 
+## 0.5.1
+
+- Improving interoperability with `computed_model`
+  - Simplify field mask normalizer and add `Pb::Serializer.parse_field_mask` method https://github.com/wantedly/pb-serializer/pull/40
+  - Stop defining accessor methods in `attribute` DSL if the method of the same name already existss https://github.com/wantedly/pb-serializer/pull/42
+- Refactoring
+  - Extract Dsl and Hook from Serializable module https://github.com/wantedly/pb-serializer/pull/41
+
 ## 0.5.0
 
 - Bump `computed_model` from 0.2.2 to 0.3.0 https://github.com/wantedly/pb-serializer/pull/38
