@@ -2,9 +2,10 @@ module Pb
   module Serializable
     extend ActiveSupport::Concern
     include ComputedModel::Model
+
     def self.included(base)
+      base.include Pb::Serializer::ComputedModelSupport
       base.extend Pb::Serializer::Dsl
-      base.singleton_class.prepend ::Pb::Serializer::ComputedModelHook
     end
 
     # @param with [
@@ -70,17 +71,6 @@ module Pb
       o
     end
 
-    private def primary_object
-      primary_object_name = self.class.__pb_serializer_primary_model_name
-      if primary_object_name
-        send(primary_object_name)
-      elsif kind_of?(Serializer::Base)
-        send(:object)
-      else
-        self
-      end
-    end
-
     module ClassMethods
       # @param with [Array, Hash, Google::Protobuf::FieldMask, nil]
       # @return [Array]
@@ -91,7 +81,7 @@ module Pb
       def bulk_load(with: nil, **args)
         with ||= ::Pb::Serializer.build_default_mask(message_class.descriptor)
         with = ::Pb::Serializer.normalize_mask(with)
-        with = with.reject { |c| (__pb_serializer_attrs & (c.kind_of?(Hash) ? c.keys : [c])).empty? }
+        with = __pb_serializer_filter_only_computed_model_attrs(with)
 
         primary_object_name = __pb_serializer_primary_model_name
         if primary_object_name
@@ -101,10 +91,6 @@ module Pb
         end
 
         bulk_load_and_compute(with, **args)
-      end
-
-      private def __pb_serializer_attrs
-        @__pb_serializer_attrs ||= Set.new
       end
     end
   end

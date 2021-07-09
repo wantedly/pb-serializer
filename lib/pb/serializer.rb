@@ -4,7 +4,7 @@ require "computed_model"
 require "google/protobuf/field_mask_pb"
 
 require "pb/serializer/dsl"
-require "pb/serializer/computed_model_hook"
+require "pb/serializer/computed_model_support"
 require "pb/serializable"
 require "pb/serializer/base"
 require "pb/serializer/attribute"
