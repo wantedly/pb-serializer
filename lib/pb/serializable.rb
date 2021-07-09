@@ -11,11 +11,10 @@ module Pb
     #   Google::Protobuf::FieldMask,
     #   Array<(Symbol, Hash)>,
     #   Hash{Symbol=>(Array,Symbol,Hash)},
-    #   Pb::Serializer::NormalizedMask
     # ]
     def to_pb(with: nil)
       with ||= ::Pb::Serializer.build_default_mask(self.class.message_class.descriptor)
-      with = ::Pb::Serializer::NormalizedMask.build(with)
+      with = ::Pb::Serializer.normalize_mask(with)
 
       oneof_set = []
 
@@ -152,7 +151,7 @@ module Pb
 
       def bulk_load(with: nil, **args)
         with ||= ::Pb::Serializer.build_default_mask(message_class.descriptor)
-        with = ::Pb::Serializer::NormalizedMask.build(with)
+        with = ::Pb::Serializer.normalize_mask(with)
         with = with.reject { |c| (__pb_serializer_attrs & (c.kind_of?(Hash) ? c.keys : [c])).empty? }
 
         primary_object_name = __pb_serializer_primary_model_name

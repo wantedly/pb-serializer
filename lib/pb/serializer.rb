@@ -4,7 +4,6 @@ require "computed_model"
 require "google/protobuf/field_mask_pb"
 
 require "pb/serializable"
-require "pb/serializer/normalized_mask"
 require "pb/serializer/base"
 require "pb/serializer/attribute"
 require "pb/serializer/oneof"
@@ -89,6 +88,46 @@ module Pb
             end
           end
         set.to_a
+      end
+
+      # @param [Google::Protobuf::FieldMask]
+      # @return [Array]
+      def parse_field_mask(field_mask)
+        unless field_mask.kind_of?(Google::Protobuf::FieldMask)
+          raise ArgumentError, "expected Google::Protobuf::FieldMask, but got #{field_mask.class}"
+        end
+
+        field_mask.paths.map do |path|
+          path.split(".").reverse.inject(nil) { |h, key| h.nil? ? key.to_sym : { key.to_sym => [h].compact } }
+        end
+      end
+
+      # @param [Google::Protobuf::FieldMask, Symbol, Array<(Symbol,Hash)>, Hash{Symbol=>(Array,Symbol,Hash)}]
+      # @return [Hash{Symbol=>(Array,Hash)}]
+      def normalize_mask(input)
+        if input.kind_of?(Google::Protobuf::FieldMask)
+          input = parse_field_mask(input)
+        end
+
+        normalized = {}
+
+        input = [input] if input.kind_of?(Hash)
+        Array(input).each do |el|
+          case el
+          when Symbol
+            normalized[el] ||= []
+          when Hash
+            el.each do |k, v|
+              v = [v] if v.kind_of?(Hash)
+              normalized[k] ||= []
+              normalized[k].push(*Array(v))
+            end
+          else
+            raise "not supported field mask type: #{input.class}"
+          end
+        end
+
+        normalized
       end
     end
   end
