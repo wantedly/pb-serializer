@@ -1,11 +1,14 @@
+require "pb/serializable/computed_model_support"
+require "pb/serializable/dsl"
+
 module Pb
   module Serializable
     extend ActiveSupport::Concern
     include ComputedModel::Model
 
     def self.included(base)
-      base.include Pb::Serializer::ComputedModelSupport
-      base.extend Pb::Serializer::Dsl
+      base.include ComputedModelSupport
+      base.extend Dsl
     end
 
     # @param with [
