@@ -7,8 +7,6 @@ require "pb/serializer/dsl"
 require "pb/serializer/computed_model_support"
 require "pb/serializable"
 require "pb/serializer/base"
-require "pb/serializer/attribute"
-require "pb/serializer/oneof"
 
 module Pb
   module Serializer

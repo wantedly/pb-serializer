@@ -1,3 +1,6 @@
+require 'pb/serializer/dsl/attribute'
+require 'pb/serializer/dsl/oneof'
+
 module Pb
   module Serializer
     module Dsl
@@ -17,7 +20,7 @@ module Pb
 
         raise ::Pb::Serializer::UnknownFieldError, "#{name} is not defined in #{ __pb_serializer_message_class.name}" unless fd
 
-        attr = ::Pb::Serializer::Attribute.new(
+        attr = Attribute.new(
           name: name,
           options: opts,
           field_descriptor: fd,
@@ -41,7 +44,7 @@ module Pb
       end
 
       def oneof(name, allow_nil: false)
-        @current_oneof = ::Pb::Serializer::Oneof.new(
+        @current_oneof = Oneof.new(
           name: name,
           allow_nil: allow_nil,
           attributes: [],
