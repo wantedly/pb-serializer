@@ -6,6 +6,9 @@ module Pb
     extend ActiveSupport::Concern
     include ComputedModel::Model
 
+    # @!parse extend Dsl
+    # @!parse extend ClassMethods
+
     def self.included(base)
       base.include ComputedModelSupport
       base.extend Dsl
@@ -16,6 +19,9 @@ module Pb
     #   Array<(Symbol, Hash)>,
     #   Hash{Symbol=>(Array,Symbol,Hash)},
     #   ]
+    #   Specifies the list of fields to be serialized in the Proto message object.
+    #   `nil` means that all fields defined in .proto will be serialized.
+    # @return [Object] a protobuf message object
     def to_pb(with: nil)
       with ||= ::Pb::Serializer.build_default_mask(self.class.__pb_serializer_message_class.descriptor)
       with = ::Pb::Serializer.normalize_mask(with)

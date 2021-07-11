@@ -31,6 +31,7 @@ module Pb
       end
 
       # @param v [:raise, :warn, :ignore]
+      # @return [void]
       def missing_field_behavior=(v)
         @missing_field_behavior = v
 
@@ -47,6 +48,7 @@ module Pb
       #   end
       # @yield [c]
       # @yieldparam [Configuration] config
+      # @return [void]
       def configure
         yield configuration
       end
@@ -61,7 +63,7 @@ module Pb
         configuration.logger
       end
 
-      # @param [Google::Protobuf::Descriptor]
+      # @param descriptor [Google::Protobuf::Descriptor]
       def build_default_mask(descriptor)
         set =
           descriptor.each_with_object(Set[]) do |fd, m|
@@ -88,7 +90,7 @@ module Pb
         set.to_a
       end
 
-      # @param [Google::Protobuf::FieldMask]
+      # @param field_mask [Google::Protobuf::FieldMask]
       # @return [Array]
       def parse_field_mask(field_mask)
         unless field_mask.kind_of?(Google::Protobuf::FieldMask)
@@ -100,7 +102,7 @@ module Pb
         end
       end
 
-      # @param [Google::Protobuf::FieldMask, Symbol, Array<(Symbol,Hash)>, Hash{Symbol=>(Array,Symbol,Hash)}]
+      # @param input [Google::Protobuf::FieldMask, Symbol, Array<(Symbol,Hash)>, Hash{Symbol=>(Array,Symbol,Hash)}]
       # @return [Hash{Symbol=>(Array,Hash)}]
       def normalize_mask(input)
         if input.kind_of?(Google::Protobuf::FieldMask)

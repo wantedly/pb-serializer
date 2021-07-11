@@ -4,17 +4,21 @@ require 'pb/serializable/dsl/oneof'
 module Pb
   module Serializable
     module Dsl
+      # @param klass [Class] Protobuf message class
       # @return [void]
       def message(klass)
         self.__pb_serializer_message_class = klass
       end
 
       # @param name [Symbol] An attribute name
-      # @param [Hash] opts options
+      # @param opts [Hash] options
       # @option opts [Boolean] :allow_nil Set true if this attribute allow to be nil
       # @option opts [Class] :serializer A serializer class for this attribute
       # @option opts [String, Symbol, Proc] :if A method, proc or string to call to determine to serialize this field
       # @return [void]
+      # @raise [Pb::Serializer::MissingMessageTypeError] if this class has not been called {#message}
+      # @raise [Pb::Serializer::UnknownFieldError] if the field does not defined in .proto
+      # @raise [Pb::Serializer::InvalidAttributeOptionError] if unknown options are passed
       def attribute(name, opts = {})
         raise ::Pb::Serializer::MissingMessageTypeError, "message specificaiton is missed" unless __pb_serializer_message_class
 
@@ -40,13 +44,22 @@ module Pb
 
       # @param names [Array<Symbol>] Attribute names to be ignored
       # @return [void]
+      # @example Ignore attributes
+      #   ignore :deprecated_field, :not_implemented_field
       def ignore(*names)
         names.each do |name|
           attribute name, ignore: true
         end
       end
 
+      # @param name [Symbol] An oneof attribute name
+      # @param allow_nil [Boolean] Set true if this oneof attribute allow to be nil
       # @return [void]
+      # @example Define oneof attributes
+      #   oneof :test_oneof do
+      #     attribute :name
+      #     attribute :sub_message
+      #   end
       def oneof(name, allow_nil: false)
         @current_oneof = Oneof.new(
           name: name,
