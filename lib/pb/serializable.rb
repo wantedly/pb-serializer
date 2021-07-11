@@ -14,17 +14,17 @@ module Pb
     #   Hash{Symbol=>(Array,Symbol,Hash)},
     # ]
     def to_pb(with: nil)
-      with ||= ::Pb::Serializer.build_default_mask(self.class.message_class.descriptor)
+      with ||= ::Pb::Serializer.build_default_mask(self.class.__pb_serializer_message_class.descriptor)
       with = ::Pb::Serializer.normalize_mask(with)
 
       oneof_set = []
 
-      o = self.class.message_class.new
-      self.class.message_class.descriptor.each do |fd|
-        attr = self.class.find_attribute_by_field_descriptor(fd)
+      o = self.class.__pb_serializer_message_class.new
+      self.class.__pb_serializer_message_class.descriptor.each do |fd|
+        attr = self.class.__pb_serializer_attr_by_field_descriptor(fd)
 
         unless attr
-          msg = "#{self.class.message_class.name}.#{fd.name} is missed in #{self.class.name}"
+          msg = "#{self.class.__pb_serializer_message_class.name}.#{fd.name} is missed in #{self.class.name}"
 
           case Pb::Serializer.configuration.missing_field_behavior
           when :raise then raise ::Pb::Serializer::MissingFieldError, msg
@@ -62,7 +62,7 @@ module Pb
         end
       end
 
-      self.class.oneofs.each do |oneof|
+      self.class.__pb_serializer_oneof_by_name.values.each do |oneof|
         next if oneof_set.include?(oneof.name)
         next if oneof.allow_nil?
         raise ::Pb::Serializer::ValidationError, "#{primary_object.class.name}##{oneof.name} is required"
@@ -79,7 +79,7 @@ module Pb
       end
 
       def bulk_load(with: nil, **args)
-        with ||= ::Pb::Serializer.build_default_mask(message_class.descriptor)
+        with ||= ::Pb::Serializer.build_default_mask(__pb_serializer_message_class.descriptor)
         with = ::Pb::Serializer.normalize_mask(with)
         with = __pb_serializer_filter_only_computed_model_attrs(with)
 
@@ -91,6 +91,28 @@ module Pb
         end
 
         bulk_load_and_compute(with, **args)
+      end
+
+      # @api private
+      attr_accessor :__pb_serializer_message_class
+
+      # @api private
+      # @return [Hash{Symbol=>::Pb::Serializer::Attribute}]
+      def __pb_serializer_attr_by_name
+        @__pb_serializer_attr_by_name ||= {}
+      end
+
+      # @api private
+      # @return [Hash{Symbol=>::Pb::Serializer::Oneof}]
+      def __pb_serializer_oneof_by_name
+        @__pb_serializer_oneof_by_name ||= {}
+      end
+
+      # @api private
+      # @param fd [Google::Protobuf::FieldDescriptor] a field descriptor
+      # @return [Pb::Serializer::Attribute, nil]
+      def __pb_serializer_attr_by_field_descriptor(fd)
+        __pb_serializer_attr_by_name[fd.name.to_sym]
       end
     end
   end
