@@ -1,6 +1,7 @@
 module Pb
   module Serializer
     module Dsl
+      # @api private
       class Oneof < Struct.new(
         :name,
         :allow_nil,

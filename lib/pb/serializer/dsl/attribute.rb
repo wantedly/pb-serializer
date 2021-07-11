@@ -1,6 +1,7 @@
 module Pb
   module Serializer
     module Dsl
+      # @api private
       class Attribute < Struct.new(
         :name,
         :options,

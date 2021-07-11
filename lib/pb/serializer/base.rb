@@ -12,6 +12,7 @@ module Pb
         @object = object
       end
 
+      # @private
       module Hook
         def define_primary_loader(name, &block)
           class_eval <<~RUBY

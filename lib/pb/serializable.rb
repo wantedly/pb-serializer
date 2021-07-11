@@ -12,7 +12,7 @@ module Pb
     #   Google::Protobuf::FieldMask,
     #   Array<(Symbol, Hash)>,
     #   Hash{Symbol=>(Array,Symbol,Hash)},
-    # ]
+    #   ]
     def to_pb(with: nil)
       with ||= ::Pb::Serializer.build_default_mask(self.class.__pb_serializer_message_class.descriptor)
       with = ::Pb::Serializer.normalize_mask(with)

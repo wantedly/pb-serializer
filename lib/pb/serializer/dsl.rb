@@ -4,6 +4,7 @@ require 'pb/serializer/dsl/oneof'
 module Pb
   module Serializer
     module Dsl
+      # @return [void]
       def message(klass)
         self.__pb_serializer_message_class = klass
       end
@@ -13,6 +14,7 @@ module Pb
       # @option opts [Boolean] :allow_nil Set true if this attribute allow to be nil
       # @option opts [Class] :serializer A serializer class for this attribute
       # @option opts [String, Symbol, Proc] :if A method, proc or string to call to determine to serialize this field
+      # @return [void]
       def attribute(name, opts = {})
         raise ::Pb::Serializer::MissingMessageTypeError, "message specificaiton is missed" unless __pb_serializer_message_class
 
@@ -37,12 +39,14 @@ module Pb
       end
 
       # @param names [Array<Symbol>] Attribute names to be ignored
+      # @return [void]
       def ignore(*names)
         names.each do |name|
           attribute name, ignore: true
         end
       end
 
+      # @return [void]
       def oneof(name, allow_nil: false)
         @current_oneof = Oneof.new(
           name: name,
