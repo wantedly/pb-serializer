@@ -1,5 +1,6 @@
 module Pb
   module Serializer
+    # @private
     module ComputedModelSupport
       def self.included(base)
         base.singleton_class.prepend Hook
