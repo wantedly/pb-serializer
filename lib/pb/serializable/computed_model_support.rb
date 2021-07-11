@@ -1,5 +1,5 @@
 module Pb
-  module Serializer
+  module Serializable
     # @private
     module ComputedModelSupport
       def self.included(base)

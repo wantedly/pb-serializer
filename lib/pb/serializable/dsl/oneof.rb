@@ -1,5 +1,5 @@
 module Pb
-  module Serializer
+  module Serializable
     module Dsl
       # @api private
       class Oneof < Struct.new(

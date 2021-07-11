@@ -1,8 +1,8 @@
-require 'pb/serializer/dsl/attribute'
-require 'pb/serializer/dsl/oneof'
+require 'pb/serializable/dsl/attribute'
+require 'pb/serializable/dsl/oneof'
 
 module Pb
-  module Serializer
+  module Serializable
     module Dsl
       # @return [void]
       def message(klass)
