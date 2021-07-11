@@ -1,0 +1,6 @@
+--no-private
+--hide-api private
+lib/**/*.rb
+-
+CHANGELOG.md
+LICENSE.txt

@@ -1,6 +1,8 @@
 module Pb
   module Serializer
     class Base
+      # @!parse include Pb::Serializable
+
       def self.inherited(base)
         base.include ::Pb::Serializable
         base.singleton_class.prepend Hook
