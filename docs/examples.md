@@ -145,6 +145,34 @@ class CommentPbSerializer < Pb::Serializer::Base
 end
 ```
 
+## Serializable model
+
+```proto
+message User {
+  uint64 id = 1;
+  string first_name = 2;
+  string last_name = 3;
+}
+```
+
+```ruby
+# Schema: [id(integer), first_name(string), last_name(string)]
+class User < ActiveRecord::Base
+  include Pb::Serializable
+
+  message ExamplesPb::User
+
+  attribute :id
+  attribute :first_name
+  attribute :last_name
+end
+```
+
+```ruby
+User.find(123).to_pb
+# => <ExamplesPb::User: id: 123, first_name: 'Masayuki', last_name: 'Izumi'>
+```
+
 ## With FieldMask and ComputedModel
 
 ```proto
