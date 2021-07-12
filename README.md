@@ -4,62 +4,66 @@
 [![Gem Version](https://badge.fury.io/rb/pb-serializer.svg)](https://badge.fury.io/rb/pb-serializer)
 [![License](https://img.shields.io/github/license/wantedly/pb-serializer)](./LICENSE)
 
-```rb
-class UserSerializer < Pb::Serializer::Base
-  message YourApp::User
+`Pb::Serializer` is Protocol Buffers serializer for Ruby objects.
 
-  attribute :id
-  attribute :name
-  attribute :posts
+[日本語版 README](./README.ja.md)
 
-  define_primary_loader :user do |subdeps, ids:, **|
-    User.where(id: ids).preload(subdeps).map { |u| new(u) }
-  end
+## Features
 
-  define_loader :posts, key: -> { id } do |user_ids, subdeps, **|
-    PostSerializer.bulk_load(user_id: user_ids, with: subdeps).group_by { |s| s.post.user_id }
-  end
+- Declarative APIs such as [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers)
+- Automatic conversion to [Well-Known Types](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf) (e.g. `google.protobuf.Uint64Value`)
+- Support for GraphQL-like selective field fetching using [`google.protobuf.FieldMask`](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
+  - When combined with [ComputedModel](https://github.com/wantedly/computed_model), APIs with complex logic and dependencies can be implemented declaratively.
 
-  dependency :posts
-  computed def post_count
-    posts.count
-  end
-end
 
-class PostSerializer < Pb::Serializer::Base
-  message YourApp::Post
+## Usage
 
-  define_primary_loader :post do |subdeps, user_ids:, **|
-    Post.where(user_id: user_ids).preload(subdeps).map { |p| new(p) }
-  end
+The following is an example of a message definition and ActiveRecord model for Protocol Buffers.
 
-  attribute :id
-  attribute :title
-  attribute :body
-end
+```proto
+syntax = "proto3";
 
-class UserGrpcService < YourApp::UserService::Service
-  # @param req [YourApp::GetUserRequest]
-  # @param call [GRPC::ActiveCall::SingleReqView]
-  # @return [YourApp::User]
-  def get_users(req, call)
-    UserSerializer.bulk_load_and_serialize(ids: [req.user_id], with: req.field_mask)[0]
-  end
+package example;
 
-  # @param req [YourApp::ListFriendUsersRequest]
-  # @param call [GRPC::ActiveCall::SingleReqView]
-  # @return [YourApp::ListFriendUsersResponse]
-  def list_friend_users(req, call)
-    current_user = User.find(current_user_id)
-    YourApp::ListFriendUsersResponse.new(
-      users: UserSerializer.bulk_load_and_serialize(ids: current_user.friend_ids, with: req.field_mask)
-    )
-  end
+option ruby_package = "ExamplesPb";
+
+message User {
+  uint64 id = 1;
+  string name = 2;
+}
+```
+
+```ruby
+# Schema: [id(integer), name(string)]
+class User < ActiveRecord::Base
 end
 ```
 
-More examples are available under [./spec/examples](./spec/examples).
+Implements a PbSerializer for the `User` message defined in `.proto`.
+You need to declare the generated class and all defined fields in the PbSerializer.
 
+```ruby
+class UserPbSerializer < Pb::Serializer::Base
+  message ExamplesPb::User
+
+  attribute :id
+  attribute :name
+end
+```
+
+You can serialize Ruby objects to protobuf message object with the implemented PbSerializer.
+
+```ruby
+user = User.find(123)
+UserPbSerializer.new(user).to_pb
+# => <ExamplesPb::User: id: 123, name: "someuser">
+```
+
+The value of each attribute is determined from the PbSerializer instance or the object passed to the constructor.
+
+## Next read
+
+- [Examples](./docs/examples.md)
 
 ## Installation
 
@@ -76,10 +80,6 @@ And then execute:
 Or install it yourself as:
 
     $ gem install pb-serializer
-
-## Usage
-
-TODO: Write usage instructions here
 
 ## Development
 

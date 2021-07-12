@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Serialize objects into Protocol Buffers messages"
   spec.description   = spec.summary
-  spec.homepage      = "https://github.com/izumin5210/pb-serializer"
+  spec.homepage      = "https://github.com/wantedly/pb-serializer"
   spec.license       = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage

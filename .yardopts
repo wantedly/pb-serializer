@@ -2,5 +2,7 @@
 --hide-api private
 lib/**/*.rb
 -
+README.ja.md
+docs/examples.md
 CHANGELOG.md
 LICENSE.txt
