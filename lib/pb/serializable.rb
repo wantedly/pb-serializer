@@ -17,7 +17,7 @@ module Pb
     # @param with [
     #   Google::Protobuf::FieldMask,
     #   Array<(Symbol, Hash)>,
-    #   Hash{Symbol=>(Array,Symbol,Hash)},
+    #   Hash{Symbol=>(Array,Symbol,Hash,Proc)},
     #   ]
     #   Specifies the list of fields to be serialized in the Proto message object.
     #   `nil` means that all fields defined in .proto will be serialized.
