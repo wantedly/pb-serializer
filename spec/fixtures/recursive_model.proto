@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package example.recursive;
+
+option ruby_package = "TestFixture::Recursive";
+
+message StringList {
+  string car = 1;
+  StringList cdr = 2;
+}
