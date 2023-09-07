@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 0.5.2
+
+- Generate the default mask lazily to prevent infinite recursions https://github.com/wantedly/pb-serializer/pull/52
+
 ## 0.5.1
 
 - Improving interoperability with `computed_model`
