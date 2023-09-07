@@ -81,7 +81,7 @@ module Pb
                 "google.protobuf.BoolValue"  ,
                 "google.protobuf.BytesValue" then m << fd.name.to_sym
               else
-                m << { fd.name.to_sym => build_default_mask(fd.subtype) }
+                m << { fd.name.to_sym => -> { build_default_mask(fd.subtype) } }
               end
             else
               m << fd.name.to_sym
@@ -102,22 +102,24 @@ module Pb
         end
       end
 
-      # @param input [Google::Protobuf::FieldMask, Symbol, Array<(Symbol,Hash)>, Hash{Symbol=>(Array,Symbol,Hash)}]
-      # @return [Hash{Symbol=>(Array,Hash)}]
+      # @param input [Google::Protobuf::FieldMask, Symbol, Array<(Symbol,Hash)>, Hash{Symbol=>(Array,Symbol,Hash,Proc)}, Proc]
+      # @return [Hash{Symbol=>(Array,Hash,Proc)}]
       def normalize_mask(input)
         if input.kind_of?(Google::Protobuf::FieldMask)
           input = parse_field_mask(input)
         end
 
-        normalized = {}
-
+        input = input.call if input.kind_of?(Proc)
         input = [input] if input.kind_of?(Hash)
+
+        normalized = {}
         Array(input).each do |el|
           case el
           when Symbol
             normalized[el] ||= []
           when Hash
             el.each do |k, v|
+              v = v.call if v.kind_of?(Proc)
               v = [v] if v.kind_of?(Hash)
               normalized[k] ||= []
               normalized[k].push(*Array(v))
