@@ -9,10 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest ]
-        # TODO: Wait for supporting Ruby 3.0 in simplecov-cobertura.
-        # See https://github.com/dashingrocket/simplecov-cobertura/pull/16
-        # ruby: [ 2.5, 2.6, 2.7, 3.0 ]
-        ruby: [ 2.5, 2.6, 2.7 ]
+        ruby: [ 2.5, 2.6, 2.7, '3.0', 3.1, 3.2, 3.3 ]
     runs-on: ${{ matrix.os }}
 
     steps:
