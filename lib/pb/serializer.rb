@@ -55,7 +55,7 @@ module Pb
 
       # @return [Pb::Serializer::Configuration]
       def configuration
-        @configuraiton ||= Configuration.new
+        @configuration ||= Configuration.new
       end
 
       # @return [Logger]
