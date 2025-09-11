@@ -13,6 +13,8 @@ jobs:
         # See https://github.com/dashingrocket/simplecov-cobertura/pull/16
         # ruby: [ 2.5, 2.6, 2.7, 3.0 ]
         ruby: [ 2.5, 2.6, 2.7 ]
+        exclude:
+         - { os: macos-latest, ruby: '2.5' }
     runs-on: ${{ matrix.os }}
 
     steps:
