@@ -22,11 +22,11 @@ module Pb
       #   @return [Logger]
       attr_accessor :logger
       # @!attribute [r] missing_field_behavior
-      #   @return [:raise, :warn, :ignore] default: `:raise`
+      #   @return [:raise, :warn, :ignore] default: `:ignore`
       attr_reader :missing_field_behavior
 
       def initialize
-        self.missing_field_behavior = :raise
+        self.missing_field_behavior = :ignore
         self.logger = Logger.new(STDOUT)
       end
 
@@ -70,7 +70,7 @@ module Pb
             case fd.type
             when :message
               case fd.submsg_name
-              when "google.protobuf.Timestamp", 
+              when "google.protobuf.Timestamp",
                 "google.protobuf.StringValue",
                 "google.protobuf.Int32Value" ,
                 "google.protobuf.Int64Value" ,
