@@ -39,6 +39,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop", "0.67.2" # for onkcop
   spec.add_development_dependency "sqlite3", "~> 1.4"
   spec.add_development_dependency "simplecov", "~> 0.19"
-  spec.add_development_dependency "simplecov-cobertura", "~> 2.0"
+  spec.add_development_dependency "simplecov-cobertura", "~> 3.1"
   spec.add_development_dependency "concurrent-ruby", "1.3.4"
 end
