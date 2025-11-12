@@ -39,7 +39,7 @@ RSpec.describe 'errors' do
       allow(Pb::Serializer).to receive(:configuration).and_return(config)
 
       Pb::Serializer.configure do |c|
-        c.missing_field_behavior = missing_field_behavior
+        c.missing_field_behavior = missing_field_behavior if missing_field_behavior
         c.logger = Logger.new(log_buffer)
       end
     end
@@ -68,6 +68,29 @@ RSpec.describe 'errors' do
 
     context 'when missing_field_behavior is `ignore`' do
       let(:missing_field_behavior) { :ignore }
+
+      it { expect(log_buffer.string).to be_empty }
+      it { is_expected.to be_a TestFixture::Simple::Message }
+    end
+
+    context 'when missing_field_behavior is not configured (default behavior)' do
+      before do
+        # Reset configuration to test default behavior
+        Pb::Serializer.instance_variable_set(:@configuraiton, nil)
+        allow(Pb::Serializer).to receive(:configuration).and_call_original
+
+        # Don't configure missing_field_behavior to test default
+        Pb::Serializer.configure do |c|
+          c.logger = Logger.new(log_buffer)
+        end
+      end
+
+      # Override the parent's before block to avoid setting missing_field_behavior
+      let(:missing_field_behavior) { nil }
+
+      it 'uses default value :ignore' do
+        expect(Pb::Serializer.configuration.missing_field_behavior).to eq(:ignore)
+      end
 
       it { expect(log_buffer.string).to be_empty }
       it { is_expected.to be_a TestFixture::Simple::Message }
