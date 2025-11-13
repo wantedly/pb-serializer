@@ -1,5 +1,11 @@
 ## Unreleased
 
+## 0.6.0
+
+- Change default value of `missing_field_behavior` from `:raise` to `:ignore` https://github.com/wantedly/pb-serializer/pull/56
+- Update CI Ruby versions to 3.0+ https://github.com/wantedly/pb-serializer/pull/56
+- Update `simplecov-cobertura` to latest version https://github.com/wantedly/pb-serializer/pull/56
+
 ## 0.5.2
 
 - Generate the default mask lazily to prevent infinite recursions https://github.com/wantedly/pb-serializer/pull/52
@@ -26,14 +32,13 @@
 
 - Support `if` option https://github.com/wantedly/pb-serializer/pull/24
 - Improve error handling https://github.com/wantedly/pb-serializer/pull/26
-    - raise `MissingMessageTypeError` if `message` declaration is missed
-    - raise `MissingFieldError` if `attribute` declaration is missed
-    - raise `InvalidOptionError` when `attribute` receives invalid params
+  - raise `MissingMessageTypeError` if `message` declaration is missed
+  - raise `MissingFieldError` if `attribute` declaration is missed
+  - raise `InvalidOptionError` when `attribute` receives invalid params
 - Introduce Pb::Serializer.configure https://github.com/wantedly/pb-serializer/pull/27
-    - Add `missing_field_behavior` config to suppress `MissingFieldError`
-    - Rename `InvalidOptionError` -> `InvalidAttributeOptionError`
+  - Add `missing_field_behavior` config to suppress `MissingFieldError`
+  - Rename `InvalidOptionError` -> `InvalidAttributeOptionError`
 - Skip serializing when a value is already serialized https://github.com/wantedly/pb-serializer/pull/29
-
 
 ## 0.2.1
 
@@ -47,7 +52,6 @@
   - Bump `computed_model` from 0.1.0 to 0.2.1
   - Change API
 - Add example specs https://github.com/wantedly/pb-serializer/pull/18
-
 
 ## 0.1.0
 
